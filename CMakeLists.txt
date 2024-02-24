@@ -18,6 +18,7 @@ install(TARGETS EPHist EXPORT ${PROJECT_NAME}Targets)
 # with CMake v3.23.
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/EPHist.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EPHist
 )
 

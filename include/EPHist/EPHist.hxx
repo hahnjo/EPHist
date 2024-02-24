@@ -3,6 +3,8 @@
 #ifndef EPHIST_EPHIST
 #define EPHIST_EPHIST
 
+#include "RegularAxis.hxx"
+
 #include <cassert>
 #include <cstddef>
 #include <memory>
@@ -13,15 +15,14 @@ template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
   std::size_t fNumBins;
 
-  double fLow;
-  double fHigh;
-  double fInvBinWidth;
+  RegularAxis fAxis;
 
 public:
   EPHist(std::size_t numBins, double low, double high)
-      : fData(new T[numBins]{}), fNumBins(numBins), fLow(low), fHigh(high) {
-    fInvBinWidth = numBins / (high - low);
-  }
+      : fData(new T[numBins]{}), fNumBins(numBins), fAxis(numBins, low, high) {}
+  explicit EPHist(const RegularAxis &axis)
+      : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
+        fAxis(axis) {}
 
   EPHist(const EPHist<T> &) = delete;
   EPHist(EPHist<T> &&) = default;
@@ -42,8 +43,7 @@ public:
   std::size_t GetNumBins() const { return fNumBins; }
 
   void Fill(double x) {
-    std::size_t bin = (x - fLow) * fInvBinWidth;
-    assert(bin >= 0 && bin < fNumBins);
+    std::size_t bin = fAxis.ComputeBin(x);
     fData[bin]++;
   }
 };
