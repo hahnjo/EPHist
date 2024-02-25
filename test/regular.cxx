@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <tuple>
+#include <variant>
 
 TEST(RegularAxis, Constructor) {
   static constexpr std::size_t Bins = 20;
@@ -29,11 +30,20 @@ TEST(IntRegular1D, Constructor) {
   EPHist::EPHist<int> h1(Bins, 0, Bins);
   EXPECT_EQ(h1.GetNumBins(), Bins);
   EXPECT_EQ(h1.GetNumDimensions(), 1);
+  const auto &axes = h1.GetAxes();
+  ASSERT_EQ(axes.size(), 1);
+  EXPECT_EQ(axes[0].index(), 0);
+  ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&axes[0]) != nullptr);
+  EXPECT_EQ(std::get<EPHist::RegularAxis>(axes[0]).GetNumBins(), Bins);
 
   EPHist::RegularAxis axis(2 * Bins, 0, Bins);
   h1 = EPHist::EPHist<int>(axis);
   EXPECT_EQ(h1.GetNumBins(), 2 * Bins);
   EXPECT_EQ(h1.GetNumDimensions(), 1);
+  ASSERT_EQ(axes.size(), 1);
+  EXPECT_EQ(axes[0].index(), 0);
+  ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&axes[0]) != nullptr);
+  EXPECT_EQ(std::get<EPHist::RegularAxis>(axes[0]).GetNumBins(), 2 * Bins);
 }
 
 TEST(IntRegular1D, Fill) {
@@ -68,12 +78,15 @@ TEST(IntRegular2D, Constructor) {
   EPHist::EPHist<int> h2({axis, axis});
   EXPECT_EQ(h2.GetNumBins(), Bins * Bins);
   EXPECT_EQ(h2.GetNumDimensions(), 2);
+  const auto &axes = h2.GetAxes();
+  EXPECT_EQ(axes.size(), 2);
 
   static constexpr std::size_t BinsY = 30;
   EPHist::RegularAxis axisY(BinsY, 0, BinsY);
   h2 = EPHist::EPHist<int>({axis, axisY});
   EXPECT_EQ(h2.GetNumBins(), Bins * BinsY);
   EXPECT_EQ(h2.GetNumDimensions(), 2);
+  EXPECT_EQ(axes.size(), 2);
 }
 
 TEST(IntRegular2D, Fill) {
@@ -122,6 +135,8 @@ TEST(IntRegular3D, Constructor) {
   EPHist::EPHist<int> h3({axisX, axisY, axisZ});
   EXPECT_EQ(h3.GetNumBins(), BinsX * BinsY * BinsZ);
   EXPECT_EQ(h3.GetNumDimensions(), 3);
+  const auto &axes = h3.GetAxes();
+  EXPECT_EQ(axes.size(), 3);
 }
 
 TEST(IntRegular3D, Fill) {
@@ -180,6 +195,8 @@ TEST(IntRegular4D, Constructor) {
   EPHist::EPHist<int> h4({axis0, axis1, axis2, axis3});
   EXPECT_EQ(h4.GetNumBins(), Bins0 * Bins1 * Bins2 * Bins3);
   EXPECT_EQ(h4.GetNumDimensions(), 4);
+  const auto &axes = h4.GetAxes();
+  EXPECT_EQ(axes.size(), 4);
 }
 
 TEST(IntRegular4D, Fill) {

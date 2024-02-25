@@ -19,6 +19,7 @@ install(TARGETS EPHist EXPORT ${PROJECT_NAME}Targets)
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/EPHist.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/VariableBinAxis.hxx
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EPHist
 )
 

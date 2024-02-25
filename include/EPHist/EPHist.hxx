@@ -4,6 +4,7 @@
 #define EPHIST_EPHIST
 
 #include "RegularAxis.hxx"
+#include "VariableBinAxis.hxx"
 
 #include <cassert>
 #include <cstddef>
@@ -14,11 +15,13 @@
 
 namespace EPHist {
 
+using AxisVariant = std::variant<RegularAxis, VariableBinAxis>;
+
 template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
   std::size_t fNumBins;
 
-  std::vector<std::variant<RegularAxis>> fAxes;
+  std::vector<AxisVariant> fAxes;
 
 public:
   EPHist(std::size_t numBins, double low, double high)
@@ -35,6 +38,9 @@ public:
     }
     fData.reset(new T[fNumBins]{});
   }
+  explicit EPHist(const VariableBinAxis &axis)
+      : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
+        fAxes({axis}) {}
 
   EPHist(const EPHist<T> &) = delete;
   EPHist(EPHist<T> &&) = default;
@@ -53,13 +59,20 @@ public:
     return fData[bin];
   }
   std::size_t GetNumBins() const { return fNumBins; }
+
+  const std::vector<AxisVariant> &GetAxes() const { return fAxes; }
   std::size_t GetNumDimensions() const { return fAxes.size(); }
 
 private:
   template <std::size_t I, typename... A>
   std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
-    const auto &axis = std::get<RegularAxis>(fAxes[I]);
-    bin = bin * axis.GetNumBins() + axis.ComputeBin(std::get<I>(args));
+    if (const auto *regular = std::get_if<RegularAxis>(&fAxes[I])) {
+      bin *= regular->GetNumBins();
+      bin += regular->ComputeBin(std::get<I>(args));
+    } else if (const auto *variable = std::get_if<VariableBinAxis>(&fAxes[I])) {
+      bin *= variable->GetNumBins();
+      bin += variable->ComputeBin(std::get<I>(args));
+    }
     if constexpr (I + 1 < sizeof...(A)) {
       return ComputeBin<I + 1>(bin, args);
     }
