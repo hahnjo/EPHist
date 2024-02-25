@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <memory>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 namespace EPHist {
@@ -17,7 +18,7 @@ template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
   std::size_t fNumBins;
 
-  std::vector<RegularAxis> fAxes;
+  std::vector<std::variant<RegularAxis>> fAxes;
 
 public:
   EPHist(std::size_t numBins, double low, double high)
@@ -57,7 +58,7 @@ public:
 private:
   template <std::size_t I, typename... A>
   std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
-    const auto &axis = fAxes[I];
+    const auto &axis = std::get<RegularAxis>(fAxes[I]);
     bin = bin * axis.GetNumBins() + axis.ComputeBin(std::get<I>(args));
     if constexpr (I + 1 < sizeof...(A)) {
       return ComputeBin<I + 1>(bin, args);
