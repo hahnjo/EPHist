@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 namespace EPHist {
 
@@ -15,14 +16,15 @@ template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
   std::size_t fNumBins;
 
-  RegularAxis fAxis;
+  std::vector<RegularAxis> fAxes;
 
 public:
   EPHist(std::size_t numBins, double low, double high)
-      : fData(new T[numBins]{}), fNumBins(numBins), fAxis(numBins, low, high) {}
+      : fData(new T[numBins]{}), fNumBins(numBins),
+        fAxes({RegularAxis(numBins, low, high)}) {}
   explicit EPHist(const RegularAxis &axis)
       : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
-        fAxis(axis) {}
+        fAxes({axis}) {}
 
   EPHist(const EPHist<T> &) = delete;
   EPHist(EPHist<T> &&) = default;
@@ -43,7 +45,7 @@ public:
   std::size_t GetNumBins() const { return fNumBins; }
 
   void Fill(double x) {
-    std::size_t bin = fAxis.ComputeBin(x);
+    std::size_t bin = fAxes[0].ComputeBin(x);
     fData[bin]++;
   }
 };
