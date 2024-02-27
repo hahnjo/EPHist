@@ -10,6 +10,10 @@
 namespace EPHist {
 
 class VariableBinAxis final {
+public:
+  using ArgumentType = double;
+
+private:
   std::vector<double> fBins;
 
 public:

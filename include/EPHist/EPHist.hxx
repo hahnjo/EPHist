@@ -79,6 +79,18 @@ private:
     return bin;
   }
 
+  template <std::size_t I, class Axis, class... Axes>
+  std::size_t ComputeBin(std::size_t bin,
+                         const typename Axis::ArgumentType &arg,
+                         const typename Axes::ArgumentType &...args) const {
+    const auto &axis = std::get<Axis>(fAxes[I]);
+    bin = bin * axis.GetNumBins() + axis.ComputeBin(arg);
+    if constexpr (sizeof...(Axes) > 0) {
+      return ComputeBin<I + 1, Axes...>(bin, args...);
+    }
+    return bin;
+  }
+
 public:
   template <typename... A> void Fill(const std::tuple<A...> &args) {
     std::size_t bin = ComputeBin<0>(0, args);
@@ -87,6 +99,12 @@ public:
 
   template <typename... A> void Fill(const A &...args) {
     Fill(std::forward_as_tuple(args...));
+  }
+
+  template <class... Axes>
+  void Fill(const typename Axes::ArgumentType &...args) {
+    std::size_t bin = ComputeBin<0, Axes...>(0, args...);
+    fData[bin]++;
   }
 };
 

@@ -72,6 +72,19 @@ TEST(IntRegular1D, FillTuple) {
   }
 }
 
+TEST(IntRegular1D, TemplatedFill) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> h1(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.Fill<EPHist::RegularAxis>(i);
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_EQ(h1.GetBinContent(i), 1);
+  }
+}
+
 TEST(IntRegular2D, Constructor) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
@@ -117,6 +130,24 @@ TEST(IntRegular2D, FillTuple) {
   for (std::size_t x = 0; x < BinsX; x++) {
     for (std::size_t y = 0; y < BinsY; y++) {
       h2.Fill(std::make_tuple(x, y));
+    }
+  }
+
+  for (std::size_t i = 0; i < BinsX * BinsY; i++) {
+    EXPECT_EQ(h2.GetBinContent(i), 1);
+  }
+}
+
+TEST(IntRegular2D, TemplatedFill) {
+  static constexpr std::size_t BinsX = 20;
+  EPHist::RegularAxis axisX(BinsX, 0, BinsX);
+  static constexpr std::size_t BinsY = 30;
+  EPHist::RegularAxis axisY(BinsY, 0, BinsY);
+  EPHist::EPHist<int> h2({axisX, axisY});
+
+  for (std::size_t x = 0; x < BinsX; x++) {
+    for (std::size_t y = 0; y < BinsY; y++) {
+      h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(x, y);
     }
   }
 
@@ -174,6 +205,29 @@ TEST(IntRegular3D, FillTuple) {
     for (std::size_t y = 0; y < BinsY; y++) {
       for (std::size_t z = 0; z < BinsZ; z++) {
         h3.Fill(std::make_tuple(x, y, z));
+      }
+    }
+  }
+
+  for (std::size_t i = 0; i < BinsX * BinsY * BinsZ; i++) {
+    EXPECT_EQ(h3.GetBinContent(i), 1);
+  }
+}
+
+TEST(IntRegular3D, TemplatedFill) {
+  static constexpr std::size_t BinsX = 20;
+  EPHist::RegularAxis axisX(BinsX, 0, BinsX);
+  static constexpr std::size_t BinsY = 30;
+  EPHist::RegularAxis axisY(BinsY, 0, BinsY);
+  static constexpr std::size_t BinsZ = 50;
+  EPHist::RegularAxis axisZ(BinsZ, 0, BinsZ);
+  EPHist::EPHist<int> h3({axisX, axisY, axisZ});
+
+  for (std::size_t x = 0; x < BinsX; x++) {
+    for (std::size_t y = 0; y < BinsY; y++) {
+      for (std::size_t z = 0; z < BinsZ; z++) {
+        h3.Fill<EPHist::RegularAxis, EPHist::RegularAxis, EPHist::RegularAxis>(
+            x, y, z);
       }
     }
   }
@@ -241,6 +295,33 @@ TEST(IntRegular4D, FillTuple) {
       for (std::size_t v2 = 0; v2 < Bins2; v2++) {
         for (std::size_t v3 = 0; v3 < Bins3; v3++) {
           h4.Fill(std::make_tuple(v0, v1, v2, v3));
+        }
+      }
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins0 * Bins1 * Bins2 * Bins3; i++) {
+    EXPECT_EQ(h4.GetBinContent(i), 1);
+  }
+}
+
+TEST(IntRegular4D, TemplatedFill) {
+  static constexpr std::size_t Bins0 = 10;
+  EPHist::RegularAxis axis0(Bins0, 0, Bins0);
+  static constexpr std::size_t Bins1 = 20;
+  EPHist::RegularAxis axis1(Bins1, 0, Bins1);
+  static constexpr std::size_t Bins2 = 30;
+  EPHist::RegularAxis axis2(Bins2, 0, Bins2);
+  static constexpr std::size_t Bins3 = 50;
+  EPHist::RegularAxis axis3(Bins3, 0, Bins3);
+  EPHist::EPHist<int> h4({axis0, axis1, axis2, axis3});
+
+  for (std::size_t v0 = 0; v0 < Bins0; v0++) {
+    for (std::size_t v1 = 0; v1 < Bins1; v1++) {
+      for (std::size_t v2 = 0; v2 < Bins2; v2++) {
+        for (std::size_t v3 = 0; v3 < Bins3; v3++) {
+          h4.Fill<EPHist::RegularAxis, EPHist::RegularAxis, EPHist::RegularAxis,
+                  EPHist::RegularAxis>(v0, v1, v2, v3);
         }
       }
     }

@@ -9,6 +9,10 @@
 namespace EPHist {
 
 class RegularAxis final {
+public:
+  using ArgumentType = double;
+
+private:
   std::size_t fNumBins;
   double fLow;
   double fHigh;

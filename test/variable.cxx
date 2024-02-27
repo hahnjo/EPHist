@@ -92,3 +92,23 @@ TEST(IntVariableBin1D, FillTuple) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
   }
 }
+
+TEST(IntVariableBin1D, TemplatedFill) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+
+  EPHist::VariableBinAxis axis(bins);
+  EPHist::EPHist<int> h1(axis);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.Fill<EPHist::VariableBinAxis>(i);
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_EQ(h1.GetBinContent(i), 1);
+  }
+}
