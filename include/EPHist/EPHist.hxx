@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 namespace EPHist {
@@ -69,6 +70,23 @@ public:
     bin += fAxes[1].ComputeBin(y);
     bin *= fAxes[2].GetNumBins();
     bin += fAxes[2].ComputeBin(z);
+    fData[bin]++;
+  }
+
+private:
+  template <std::size_t I, typename... A>
+  std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
+    const auto &axis = fAxes[I];
+    bin = bin * axis.GetNumBins() + axis.ComputeBin(std::get<I>(args));
+    if constexpr (I + 1 < sizeof...(A)) {
+      return ComputeBin<I + 1>(bin, args);
+    }
+    return bin;
+  }
+
+public:
+  template <typename... A> void Fill(const std::tuple<A...> &args) {
+    std::size_t bin = ComputeBin<0>(0, args);
     fData[bin]++;
   }
 };
