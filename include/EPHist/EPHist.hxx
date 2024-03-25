@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <tuple>
 #include <variant>
@@ -23,15 +24,36 @@ template <typename T> class EPHist final {
 
   std::vector<AxisVariant> fAxes;
 
-  void VerifyAxesPtrs() const {
-    for (auto &axis : fAxes) {
-      if (const auto *regular = std::get_if<RegularAxis>(&axis)) {
-        assert(regular == reinterpret_cast<const RegularAxis *>(&axis));
-      } else if (const auto *variable = std::get_if<VariableBinAxis>(&axis)) {
-        assert(variable == reinterpret_cast<const VariableBinAxis *>(&axis));
+  class AxisPtr {
+    std::uintptr_t fValue;
+    static constexpr int Mask = 0x7;
+
+  public:
+    AxisPtr(AxisVariant &axis) {
+      if (auto *regular = std::get_if<RegularAxis>(&axis)) {
+        fValue = reinterpret_cast<std::uintptr_t>(regular);
+      } else if (auto *variable = std::get_if<VariableBinAxis>(&axis)) {
+        fValue = reinterpret_cast<std::uintptr_t>(variable);
       } else {
         assert(0 && "unknown axis type");
       }
+      assert((fValue & Mask) == 0 && "lower bits of pointer not 0");
+      std::size_t idx = axis.index();
+      assert(idx <= Mask);
+      fValue |= idx;
+    }
+
+    const void *GetPointer() const {
+      return reinterpret_cast<const void *>(fValue & ~Mask);
+    }
+    int GetIndex() const { return fValue & Mask; }
+  };
+  std::vector<AxisPtr> fAxesPtrs;
+
+  void SetupAxesPtrs() {
+    fAxesPtrs.clear();
+    for (auto &axis : fAxes) {
+      fAxesPtrs.emplace_back(axis);
     }
   }
 
@@ -39,12 +61,12 @@ public:
   EPHist(std::size_t numBins, double low, double high)
       : fData(new T[numBins]{}), fNumBins(numBins),
         fAxes({RegularAxis(numBins, low, high)}) {
-    VerifyAxesPtrs();
+    SetupAxesPtrs();
   }
   explicit EPHist(const RegularAxis &axis)
       : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
         fAxes({axis}) {
-    VerifyAxesPtrs();
+    SetupAxesPtrs();
   }
   explicit EPHist(const std::vector<RegularAxis> &axes) {
     fNumBins = 1;
@@ -53,12 +75,12 @@ public:
       fNumBins *= axis.GetNumBins();
     }
     fData.reset(new T[fNumBins]{});
-    VerifyAxesPtrs();
+    SetupAxesPtrs();
   }
   explicit EPHist(const VariableBinAxis &axis)
       : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
         fAxes({axis}) {
-    VerifyAxesPtrs();
+    SetupAxesPtrs();
   }
 
   EPHist(const EPHist<T> &) = delete;
@@ -85,16 +107,18 @@ public:
 private:
   template <std::size_t I, typename... A>
   std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
-    switch (fAxes[I].index()) {
+    const auto &axisPtr = fAxesPtrs[I];
+    switch (axisPtr.GetIndex()) {
     case 0: {
-      const auto *regular = reinterpret_cast<const RegularAxis *>(&fAxes[I]);
+      const auto *regular =
+          static_cast<const RegularAxis *>(axisPtr.GetPointer());
       bin *= regular->GetNumBins();
       bin += regular->ComputeBin(std::get<I>(args));
       break;
     }
     case 1: {
       const auto *variable =
-          reinterpret_cast<const VariableBinAxis *>(&fAxes[I]);
+          static_cast<const VariableBinAxis *>(axisPtr.GetPointer());
       bin *= variable->GetNumBins();
       bin += variable->ComputeBin(std::get<I>(args));
       break;
@@ -110,7 +134,8 @@ private:
   std::size_t ComputeBin(std::size_t bin,
                          const typename Axis::ArgumentType &arg,
                          const typename Axes::ArgumentType &...args) const {
-    const auto &axis = *reinterpret_cast<const Axis *>(&fAxes[I]);
+    const auto &axisPtr = fAxesPtrs[I];
+    const auto &axis = *static_cast<const Axis *>(axisPtr.GetPointer());
     bin = bin * axis.GetNumBins() + axis.ComputeBin(arg);
     if constexpr (sizeof...(Axes) > 0) {
       return ComputeBin<I + 1, Axes...>(bin, args...);

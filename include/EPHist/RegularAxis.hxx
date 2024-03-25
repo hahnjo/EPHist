@@ -8,7 +8,7 @@
 
 namespace EPHist {
 
-class RegularAxis final {
+class alignas(8) RegularAxis final {
 public:
   using ArgumentType = double;
 

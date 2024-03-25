@@ -9,7 +9,7 @@
 
 namespace EPHist {
 
-class VariableBinAxis final {
+class alignas(8) VariableBinAxis final {
 public:
   using ArgumentType = double;
 
