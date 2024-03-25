@@ -182,6 +182,32 @@ TEST(IntRegular4D, Constructor) {
   EXPECT_EQ(h4.GetNumDimensions(), 4);
 }
 
+TEST(IntRegular4D, Fill) {
+  static constexpr std::size_t Bins0 = 10;
+  EPHist::RegularAxis axis0(Bins0, 0, Bins0);
+  static constexpr std::size_t Bins1 = 20;
+  EPHist::RegularAxis axis1(Bins1, 0, Bins1);
+  static constexpr std::size_t Bins2 = 30;
+  EPHist::RegularAxis axis2(Bins2, 0, Bins2);
+  static constexpr std::size_t Bins3 = 50;
+  EPHist::RegularAxis axis3(Bins3, 0, Bins3);
+  EPHist::EPHist<int> h4({axis0, axis1, axis2, axis3});
+
+  for (std::size_t v0 = 0; v0 < Bins0; v0++) {
+    for (std::size_t v1 = 0; v1 < Bins1; v1++) {
+      for (std::size_t v2 = 0; v2 < Bins2; v2++) {
+        for (std::size_t v3 = 0; v3 < Bins3; v3++) {
+          h4.Fill(v0, v1, v2, v3);
+        }
+      }
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins0 * Bins1 * Bins2 * Bins3; i++) {
+    EXPECT_EQ(h4.GetBinContent(i), 1);
+  }
+}
+
 TEST(IntRegular4D, FillTuple) {
   static constexpr std::size_t Bins0 = 10;
   EPHist::RegularAxis axis0(Bins0, 0, Bins0);

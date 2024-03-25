@@ -54,25 +54,6 @@ public:
   std::size_t GetNumBins() const { return fNumBins; }
   std::size_t GetNumDimensions() const { return fAxes.size(); }
 
-  void Fill(double x) {
-    std::size_t bin = fAxes[0].ComputeBin(x);
-    fData[bin]++;
-  }
-  void Fill(double x, double y) {
-    std::size_t bin = fAxes[0].ComputeBin(x);
-    bin *= fAxes[1].GetNumBins();
-    bin += fAxes[1].ComputeBin(y);
-    fData[bin]++;
-  }
-  void Fill(double x, double y, double z) {
-    std::size_t bin = fAxes[0].ComputeBin(x);
-    bin *= fAxes[1].GetNumBins();
-    bin += fAxes[1].ComputeBin(y);
-    bin *= fAxes[2].GetNumBins();
-    bin += fAxes[2].ComputeBin(z);
-    fData[bin]++;
-  }
-
 private:
   template <std::size_t I, typename... A>
   std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
@@ -88,6 +69,10 @@ public:
   template <typename... A> void Fill(const std::tuple<A...> &args) {
     std::size_t bin = ComputeBin<0>(0, args);
     fData[bin]++;
+  }
+
+  template <typename... A> void Fill(const A &...args) {
+    Fill(std::forward_as_tuple(args...));
   }
 };
 
