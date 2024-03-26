@@ -5,6 +5,7 @@
 
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
+#include "Weight.hxx"
 
 #include <cassert>
 #include <cstddef>
@@ -12,6 +13,7 @@
 #include <memory>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <variant>
 #include <vector>
 
@@ -195,6 +197,39 @@ public:
     }
     std::size_t bin = ComputeBin<0, Axes...>(0, args...);
     fData[bin]++;
+  }
+
+  template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
+    static_assert(
+        std::is_floating_point_v<T>,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    std::size_t bin = ComputeBin<0>(0, args);
+    fData[bin] += w.fValue;
+  }
+
+  template <typename... A> void Fill(Weight w, const A &...args) {
+    static_assert(
+        std::is_floating_point_v<T>,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    Fill(w, std::forward_as_tuple(args...));
+  }
+
+  template <class... Axes>
+  void Fill(Weight w, const typename Axes::ArgumentType &...args) {
+    static_assert(
+        std::is_floating_point_v<T>,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(Axes) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    std::size_t bin = ComputeBin<0, Axes...>(0, args...);
+    fData[bin] += w.fValue;
   }
 };
 

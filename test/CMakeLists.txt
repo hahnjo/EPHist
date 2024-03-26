@@ -15,3 +15,7 @@ add_test(NAME regular COMMAND test_regular)
 add_executable(test_variable variable.cxx)
 target_link_libraries(test_variable EPHist GTest::Main)
 add_test(NAME variable COMMAND test_variable)
+
+add_executable(test_weighted weighted.cxx)
+target_link_libraries(test_weighted EPHist GTest::Main)
+add_test(NAME weighted COMMAND test_weighted)

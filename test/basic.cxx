@@ -209,3 +209,84 @@ TEST(Basic, TemplatedFillInvalidAxis) {
       (h2.Fill<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(1, 2)),
       std::invalid_argument);
 }
+
+TEST(Basic, FillWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.Fill(EPHist::Weight(1), 1));
+  EXPECT_THROW(h1.Fill(EPHist::Weight(1), 1, 2), std::invalid_argument);
+
+  EXPECT_THROW(h2.Fill(EPHist::Weight(1), 1), std::invalid_argument);
+  EXPECT_NO_THROW(h2.Fill(EPHist::Weight(1), 1, 2));
+  EXPECT_THROW(h2.Fill(EPHist::Weight(1), 1, 2, 3), std::invalid_argument);
+}
+
+TEST(Basic, FillTupleWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.Fill(EPHist::Weight(1), std::make_tuple(1)));
+  EXPECT_THROW(h1.Fill(EPHist::Weight(1), std::make_tuple(1, 2)),
+               std::invalid_argument);
+
+  EXPECT_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1, 2)));
+  EXPECT_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1, 2, 3)),
+               std::invalid_argument);
+}
+
+TEST(Basic, TemplatedFillWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1));
+  EXPECT_THROW((h1.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
+                   EPHist::Weight(1), 1, 2)),
+               std::invalid_argument);
+
+  EXPECT_THROW(h2.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1),
+               std::invalid_argument);
+  EXPECT_NO_THROW((h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
+      EPHist::Weight(1), 1, 2)));
+  EXPECT_THROW(
+      (h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis, EPHist::RegularAxis>(
+          EPHist::Weight(1), 1, 2, 3)),
+      std::invalid_argument);
+}
+
+TEST(Basic, TemplatedFillWeightInvalidAxis) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  EPHist::EPHist<double> h1(variableBinAxis);
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  EPHist::EPHist<double> h2({regularAxis, regularAxis});
+
+  EXPECT_THROW((h1.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(h1.Fill<EPHist::VariableBinAxis>(EPHist::Weight(1), 1));
+
+  EXPECT_NO_THROW((h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
+      EPHist::Weight(1), 1, 2)));
+  EXPECT_THROW((h2.Fill<EPHist::RegularAxis, EPHist::VariableBinAxis>(
+                   EPHist::Weight(1), 1, 2)),
+               std::invalid_argument);
+  EXPECT_THROW((h2.Fill<EPHist::VariableBinAxis, EPHist::RegularAxis>(
+                   EPHist::Weight(1), 1, 2)),
+               std::invalid_argument);
+  EXPECT_THROW((h2.Fill<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(
+                   EPHist::Weight(1), 1, 2)),
+               std::invalid_argument);
+}
