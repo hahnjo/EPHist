@@ -3,6 +3,7 @@
 #ifndef EPHIST_EPHIST
 #define EPHIST_EPHIST
 
+#include "DoubleBinWithError.hxx"
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
 #include "Weight.hxx"
@@ -199,9 +200,12 @@ public:
     fData[bin]++;
   }
 
+  static constexpr bool WeightedFill =
+      std::is_floating_point_v<T> || std::is_same_v<T, DoubleBinWithError>;
+
   template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
     static_assert(
-        std::is_floating_point_v<T>,
+        WeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -212,7 +216,7 @@ public:
 
   template <typename... A> void Fill(Weight w, const A &...args) {
     static_assert(
-        std::is_floating_point_v<T>,
+        WeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -223,7 +227,7 @@ public:
   template <class... Axes>
   void Fill(Weight w, const typename Axes::ArgumentType &...args) {
     static_assert(
-        std::is_floating_point_v<T>,
+        WeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(Axes) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
