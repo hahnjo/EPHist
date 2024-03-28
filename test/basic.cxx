@@ -56,10 +56,10 @@ TEST(Basic, Add) {
 
   hA.Add(hB);
 
-  for (std::size_t i = 0; i < hA.GetNumBins(); i++) {
-    EXPECT_EQ(hA.GetBinContent(i), 2);
-    EXPECT_EQ(hB.GetBinContent(i), 1);
-    EXPECT_EQ(hC.GetBinContent(i), 2);
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_EQ(hA.GetBinContent(i + 1), 2);
+    EXPECT_EQ(hB.GetBinContent(i + 1), 1);
+    EXPECT_EQ(hC.GetBinContent(i + 1), 2);
   }
 }
 
@@ -97,6 +97,17 @@ TEST(Basic, AddUnequalRegularAxis) {
   EXPECT_THROW(hA.Add(hB), std::invalid_argument);
 }
 
+TEST(Basic, AddUnderflowOverflowBins) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> hA(axis);
+  EPHist::RegularAxis axisNoUnderflowOverflow(
+      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::EPHist<int> hB(axisNoUnderflowOverflow);
+
+  EXPECT_THROW(hA.Add(hB), std::invalid_argument);
+}
+
 TEST(Basic, Clear) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h(Bins, 0, Bins);
@@ -107,7 +118,7 @@ TEST(Basic, Clear) {
 
   h.Clear();
 
-  for (std::size_t i = 0; i < h.GetNumBins(); i++) {
+  for (std::size_t i = 0; i < h.GetTotalNumBins(); i++) {
     EXPECT_EQ(h.GetBinContent(i), 0);
   }
 }
@@ -121,15 +132,15 @@ TEST(Basic, Clone) {
   }
 
   EPHist::EPHist<int> hB = hA.Clone();
-  ASSERT_EQ(hB.GetNumBins(), Bins);
+  ASSERT_EQ(hB.GetTotalNumBins(), Bins + 2);
   ASSERT_EQ(hB.GetNumDimensions(), 1);
 
   for (std::size_t i = 0; i < Bins; i++) {
     hB.Fill(i);
   }
 
-  for (std::size_t i = 0; i < hB.GetNumBins(); i++) {
-    EXPECT_EQ(hB.GetBinContent(i), 2);
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_EQ(hB.GetBinContent(i + 1), 2);
   }
 }
 

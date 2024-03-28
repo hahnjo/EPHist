@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <utility>
 
 namespace EPHist {
 
@@ -17,26 +18,43 @@ private:
   double fLow;
   double fHigh;
   double fInvBinWidth;
+  bool fEnableUnderflowOverflowBins;
 
 public:
-  RegularAxis(std::size_t numBins, double low, double high)
-      : fNumBins(numBins), fLow(low), fHigh(high) {
+  RegularAxis(std::size_t numBins, double low, double high,
+              bool enableUnderflowOverflowBins = true)
+      : fNumBins(numBins), fLow(low), fHigh(high),
+        fEnableUnderflowOverflowBins(enableUnderflowOverflowBins) {
     fInvBinWidth = numBins / (high - low);
   }
 
   std::size_t GetNumBins() const { return fNumBins; }
+  std::size_t GetTotalNumBins() const {
+    return fEnableUnderflowOverflowBins ? fNumBins + 2 : fNumBins;
+  }
   double GetLow() const { return fLow; }
   double GetHigh() const { return fHigh; }
 
-  std::size_t ComputeBin(double x) const {
+  std::pair<std::size_t, bool> ComputeBin(double x) const {
+    bool underflow = x < fLow;
+    // Put NaNs into overflow bin.
+    bool overflow = !(x < fHigh);
+    if (underflow) {
+      return {0, fEnableUnderflowOverflowBins};
+    } else if (overflow) {
+      return {fNumBins + 1, fEnableUnderflowOverflowBins};
+    }
+
     std::size_t bin = (x - fLow) * fInvBinWidth;
-    assert(bin >= 0 && bin < fNumBins);
-    return bin;
+    // If underflow and overflow bins are enabled, shift bin by one.
+    bin += fEnableUnderflowOverflowBins;
+    return {bin, true};
   }
 
   friend bool operator==(const RegularAxis &lhs, const RegularAxis &rhs) {
     return lhs.fNumBins == rhs.fNumBins && lhs.fLow == rhs.fLow &&
-           lhs.fHigh == rhs.fHigh;
+           lhs.fHigh == rhs.fHigh &&
+           lhs.fEnableUnderflowOverflowBins == rhs.fEnableUnderflowOverflowBins;
   }
 };
 

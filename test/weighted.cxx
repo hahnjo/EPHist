@@ -17,7 +17,7 @@ TEST(DoubleRegular1D, FillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
   }
 }
 
@@ -30,7 +30,7 @@ TEST(DoubleRegular1D, FillTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
   }
 }
 
@@ -43,7 +43,7 @@ TEST(DoubleRegular1D, TemplatedFillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
   }
 }
 
@@ -56,7 +56,7 @@ TEST(DoubleBinWithErrorRegular1D, Fill) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i);
+    auto &binWithError = h1.GetBinContent(i + 1);
     EXPECT_FLOAT_EQ(binWithError.fSum, 1);
     EXPECT_FLOAT_EQ(binWithError.fSum2, 1);
   }
@@ -71,7 +71,7 @@ TEST(DoubleBinWithErrorRegular1D, FillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i);
+    auto &binWithError = h1.GetBinContent(i + 1);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -87,7 +87,7 @@ TEST(DoubleBinWithErrorRegular1D, FillTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i);
+    auto &binWithError = h1.GetBinContent(i + 1);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -103,7 +103,7 @@ TEST(DoubleBinWithErrorRegular1D, TemplatedFillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i);
+    auto &binWithError = h1.GetBinContent(i + 1);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);

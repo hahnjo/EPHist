@@ -35,7 +35,7 @@ template <> struct AxisVariantIndex<VariableBinAxis> {
 
 template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
-  std::size_t fNumBins;
+  std::size_t fTotalNumBins;
 
   std::vector<AxisVariant> fAxes;
 
@@ -74,15 +74,15 @@ template <typename T> class EPHist final {
 
 public:
   explicit EPHist(const std::vector<AxisVariant> &axes) : fAxes(axes) {
-    fNumBins = 1;
+    fTotalNumBins = 1;
     for (auto &&axis : axes) {
       if (auto *regular = std::get_if<RegularAxis>(&axis)) {
-        fNumBins *= regular->GetNumBins();
+        fTotalNumBins *= regular->GetTotalNumBins();
       } else if (auto *variable = std::get_if<VariableBinAxis>(&axis)) {
-        fNumBins *= variable->GetNumBins();
+        fTotalNumBins *= variable->GetTotalNumBins();
       }
     }
-    fData.reset(new T[fNumBins]{});
+    fData.reset(new T[fTotalNumBins]{});
     SetupAxesPtrs();
   }
 
@@ -105,74 +105,85 @@ public:
     if (fAxes != other.fAxes) {
       throw std::invalid_argument("axes configuration not identical");
     }
-    for (std::size_t i = 0; i < fNumBins; i++) {
+    for (std::size_t i = 0; i < fTotalNumBins; i++) {
       fData[i] += other.fData[i];
     }
   }
 
   void Clear() {
-    for (std::size_t i = 0; i < fNumBins; i++) {
+    for (std::size_t i = 0; i < fTotalNumBins; i++) {
       fData[i] = {};
     }
   }
 
   EPHist<T> Clone() {
     EPHist<T> h(fAxes);
-    for (std::size_t i = 0; i < fNumBins; i++) {
+    for (std::size_t i = 0; i < fTotalNumBins; i++) {
       h.fData[i] += fData[i];
     }
     return h;
   }
 
   const T &GetBinContent(std::size_t bin) const {
-    assert(bin >= 0 && bin < fNumBins);
+    assert(bin >= 0 && bin < fTotalNumBins);
     return fData[bin];
   }
-  std::size_t GetNumBins() const { return fNumBins; }
+  std::size_t GetTotalNumBins() const { return fTotalNumBins; }
 
   const std::vector<AxisVariant> &GetAxes() const { return fAxes; }
   std::size_t GetNumDimensions() const { return fAxes.size(); }
 
 private:
   template <std::size_t I, typename... A>
-  std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
+  std::pair<std::size_t, bool> ComputeBin(std::size_t bin,
+                                          const std::tuple<A...> &args) const {
     const auto &axisPtr = fAxesPtrs[I];
+    std::pair<std::size_t, bool> axisBin;
     switch (axisPtr.GetIndex()) {
     case Internal::AxisVariantIndex<RegularAxis>::value: {
       const auto *regular =
           static_cast<const RegularAxis *>(axisPtr.GetPointer());
-      bin *= regular->GetNumBins();
-      bin += regular->ComputeBin(std::get<I>(args));
+      bin *= regular->GetTotalNumBins();
+      axisBin = regular->ComputeBin(std::get<I>(args));
       break;
     }
     case Internal::AxisVariantIndex<VariableBinAxis>::value: {
       const auto *variable =
           static_cast<const VariableBinAxis *>(axisPtr.GetPointer());
-      bin *= variable->GetNumBins();
-      bin += variable->ComputeBin(std::get<I>(args));
+      bin *= variable->GetTotalNumBins();
+      axisBin = variable->ComputeBin(std::get<I>(args));
       break;
     }
     }
+    if (!axisBin.second) {
+      return {0, false};
+    }
+    bin += axisBin.first;
     if constexpr (I + 1 < sizeof...(A)) {
       return ComputeBin<I + 1>(bin, args);
     }
-    return bin;
+    return {bin, true};
   }
 
   template <std::size_t I, class Axis, class... Axes>
-  std::size_t ComputeBin(std::size_t bin,
-                         const typename Axis::ArgumentType &arg,
-                         const typename Axes::ArgumentType &...args) const {
+  std::pair<std::size_t, bool>
+  ComputeBin(std::size_t bin, const typename Axis::ArgumentType &arg,
+             const typename Axes::ArgumentType &...args) const {
     const auto &axisPtr = fAxesPtrs[I];
     if (Internal::AxisVariantIndex<Axis>::value != axisPtr.GetIndex()) {
       throw std::invalid_argument("invalid axis type");
     }
     const auto &axis = *static_cast<const Axis *>(axisPtr.GetPointer());
-    bin = bin * axis.GetNumBins() + axis.ComputeBin(arg);
+    bin = bin * axis.GetTotalNumBins();
+    auto axisBin = axis.ComputeBin(arg);
+    if (!axisBin.second) {
+      return {0, false};
+    }
+    bin += axisBin.first;
     if constexpr (sizeof...(Axes) > 0) {
       return ComputeBin<I + 1, Axes...>(bin, args...);
     }
-    return bin;
+    return {bin, true};
   }
 
 public:
@@ -180,8 +191,10 @@ public:
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    std::size_t bin = ComputeBin<0>(0, args);
-    fData[bin]++;
+    auto bin = ComputeBin<0>(0, args);
+    if (bin.second) {
+      fData[bin.first]++;
+    }
   }
 
   template <typename... A> void Fill(const A &...args) {
@@ -196,8 +209,10 @@ public:
     if (sizeof...(Axes) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    std::size_t bin = ComputeBin<0, Axes...>(0, args...);
-    fData[bin]++;
+    auto bin = ComputeBin<0, Axes...>(0, args...);
+    if (bin.second) {
+      fData[bin.first]++;
+    }
   }
 
   static constexpr bool WeightedFill =
@@ -210,8 +225,10 @@ public:
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    std::size_t bin = ComputeBin<0>(0, args);
-    fData[bin] += w.fValue;
+    auto bin = ComputeBin<0>(0, args);
+    if (bin.second) {
+      fData[bin.first] += w.fValue;
+    }
   }
 
   template <typename... A> void Fill(Weight w, const A &...args) {
@@ -232,8 +249,10 @@ public:
     if (sizeof...(Axes) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    std::size_t bin = ComputeBin<0, Axes...>(0, args...);
-    fData[bin] += w.fValue;
+    auto bin = ComputeBin<0, Axes...>(0, args...);
+    if (bin.second) {
+      fData[bin.first] += w.fValue;
+    }
   }
 };
 
