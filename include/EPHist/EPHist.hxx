@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -145,16 +146,25 @@ private:
 
 public:
   template <typename... A> void Fill(const std::tuple<A...> &args) {
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
     std::size_t bin = ComputeBin<0>(0, args);
     fData[bin]++;
   }
 
   template <typename... A> void Fill(const A &...args) {
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
     Fill(std::forward_as_tuple(args...));
   }
 
   template <class... Axes>
   void Fill(const typename Axes::ArgumentType &...args) {
+    if (sizeof...(Axes) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
     std::size_t bin = ComputeBin<0, Axes...>(0, args...);
     fData[bin]++;
   }
