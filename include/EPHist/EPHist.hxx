@@ -70,30 +70,25 @@ template <typename T> class EPHist final {
   }
 
 public:
-  EPHist(std::size_t numBins, double low, double high)
-      : fData(new T[numBins]{}), fNumBins(numBins),
-        fAxes({RegularAxis(numBins, low, high)}) {
-    SetupAxesPtrs();
-  }
-  explicit EPHist(const RegularAxis &axis)
-      : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
-        fAxes({axis}) {
-    SetupAxesPtrs();
-  }
-  explicit EPHist(const std::vector<RegularAxis> &axes) {
+  explicit EPHist(const std::vector<AxisVariant> &axes) : fAxes(axes) {
     fNumBins = 1;
     for (auto &&axis : axes) {
-      fAxes.push_back(axis);
-      fNumBins *= axis.GetNumBins();
+      if (auto *regular = std::get_if<RegularAxis>(&axis)) {
+        fNumBins *= regular->GetNumBins();
+      } else if (auto *variable = std::get_if<VariableBinAxis>(&axis)) {
+        fNumBins *= variable->GetNumBins();
+      }
     }
     fData.reset(new T[fNumBins]{});
     SetupAxesPtrs();
   }
+
+  EPHist(std::size_t numBins, double low, double high)
+      : EPHist({RegularAxis(numBins, low, high)}) {}
+  explicit EPHist(const RegularAxis &axis)
+      : EPHist(std::vector<AxisVariant>{axis}) {}
   explicit EPHist(const VariableBinAxis &axis)
-      : fData(new T[axis.GetNumBins()]{}), fNumBins(axis.GetNumBins()),
-        fAxes({axis}) {
-    SetupAxesPtrs();
-  }
+      : EPHist(std::vector<AxisVariant>{axis}) {}
 
   EPHist(const EPHist<T> &) = delete;
   EPHist(EPHist<T> &&) = default;
