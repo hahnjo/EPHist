@@ -112,6 +112,27 @@ TEST(Basic, Clear) {
   }
 }
 
+TEST(Basic, Clone) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> hA(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    hA.Fill(i);
+  }
+
+  EPHist::EPHist<int> hB = hA.Clone();
+  ASSERT_EQ(hB.GetNumBins(), Bins);
+  ASSERT_EQ(hB.GetNumDimensions(), 1);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    hB.Fill(i);
+  }
+
+  for (std::size_t i = 0; i < hB.GetNumBins(); i++) {
+    EXPECT_EQ(hB.GetBinContent(i), 2);
+  }
+}
+
 TEST(Basic, FillInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

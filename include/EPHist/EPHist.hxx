@@ -90,6 +90,8 @@ public:
   explicit EPHist(const VariableBinAxis &axis)
       : EPHist(std::vector<AxisVariant>{axis}) {}
 
+  // Copy constructor and assignment operator are deleted to avoid surprises.
+  // Use the explicit Clone() function to create a copy.
   EPHist(const EPHist<T> &) = delete;
   EPHist(EPHist<T> &&) = default;
   EPHist<T> &operator=(const EPHist<T> &) = delete;
@@ -109,6 +111,14 @@ public:
     for (std::size_t i = 0; i < fNumBins; i++) {
       fData[i] = {};
     }
+  }
+
+  EPHist<T> Clone() {
+    EPHist<T> h(fAxes);
+    for (std::size_t i = 0; i < fNumBins; i++) {
+      h.fData[i] += fData[i];
+    }
+    return h;
   }
 
   const T &GetBinContent(std::size_t bin) const {
