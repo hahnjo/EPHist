@@ -2,6 +2,7 @@
 
 #include <EPHist/EPHist.hxx>
 #include <EPHist/RegularAxis.hxx>
+#include <EPHist/VariableBinAxis.hxx>
 
 #include <gtest/gtest.h>
 
@@ -72,5 +73,30 @@ TEST(Basic, TemplatedFillInvalidNumberOfArguments) {
   EXPECT_THROW(
       (h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis, EPHist::RegularAxis>(
           1, 2, 3)),
+      std::invalid_argument);
+}
+
+TEST(Basic, TemplatedFillInvalidAxis) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  EPHist::EPHist<int> h1(variableBinAxis);
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  EPHist::EPHist<int> h2({regularAxis, regularAxis});
+
+  EXPECT_THROW((h1.Fill<EPHist::RegularAxis>(1)), std::invalid_argument);
+  EXPECT_NO_THROW(h1.Fill<EPHist::VariableBinAxis>(1));
+
+  EXPECT_NO_THROW((h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)));
+  EXPECT_THROW((h2.Fill<EPHist::RegularAxis, EPHist::VariableBinAxis>(1, 2)),
+               std::invalid_argument);
+  EXPECT_THROW((h2.Fill<EPHist::VariableBinAxis, EPHist::RegularAxis>(1, 2)),
+               std::invalid_argument);
+  EXPECT_THROW(
+      (h2.Fill<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(1, 2)),
       std::invalid_argument);
 }

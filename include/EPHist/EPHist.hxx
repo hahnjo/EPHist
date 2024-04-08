@@ -19,6 +19,17 @@ namespace EPHist {
 
 using AxisVariant = std::variant<RegularAxis, VariableBinAxis>;
 
+namespace Internal {
+// Explicit specializations are only allowed at namespace scope.
+template <typename Axis> struct AxisVariantIndex {};
+template <> struct AxisVariantIndex<RegularAxis> {
+  static constexpr std::size_t value = 0;
+};
+template <> struct AxisVariantIndex<VariableBinAxis> {
+  static constexpr std::size_t value = 1;
+};
+} // namespace Internal
+
 template <typename T> class EPHist final {
   std::unique_ptr<T[]> fData;
   std::size_t fNumBins;
@@ -110,14 +121,14 @@ private:
   std::size_t ComputeBin(std::size_t bin, const std::tuple<A...> &args) const {
     const auto &axisPtr = fAxesPtrs[I];
     switch (axisPtr.GetIndex()) {
-    case 0: {
+    case Internal::AxisVariantIndex<RegularAxis>::value: {
       const auto *regular =
           static_cast<const RegularAxis *>(axisPtr.GetPointer());
       bin *= regular->GetNumBins();
       bin += regular->ComputeBin(std::get<I>(args));
       break;
     }
-    case 1: {
+    case Internal::AxisVariantIndex<VariableBinAxis>::value: {
       const auto *variable =
           static_cast<const VariableBinAxis *>(axisPtr.GetPointer());
       bin *= variable->GetNumBins();
@@ -136,6 +147,9 @@ private:
                          const typename Axis::ArgumentType &arg,
                          const typename Axes::ArgumentType &...args) const {
     const auto &axisPtr = fAxesPtrs[I];
+    if (Internal::AxisVariantIndex<Axis>::value != axisPtr.GetIndex()) {
+      throw std::invalid_argument("invalid axis type");
+    }
     const auto &axis = *static_cast<const Axis *>(axisPtr.GetPointer());
     bin = bin * axis.GetNumBins() + axis.ComputeBin(arg);
     if constexpr (sizeof...(Axes) > 0) {
