@@ -96,6 +96,15 @@ public:
   EPHist<T> &operator=(EPHist<T> &&) = default;
   ~EPHist() = default;
 
+  void Add(const EPHist<T> &other) {
+    if (fAxes != other.fAxes) {
+      throw std::invalid_argument("axes configuration not identical");
+    }
+    for (std::size_t i = 0; i < fNumBins; i++) {
+      fData[i] += other.fData[i];
+    }
+  }
+
   void Clear() {
     for (std::size_t i = 0; i < fNumBins; i++) {
       fData[i] = {};

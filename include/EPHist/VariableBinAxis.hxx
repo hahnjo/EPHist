@@ -33,6 +33,11 @@ public:
     assert(x < fBins.back());
     return fBins.size() - 1;
   }
+
+  friend bool operator==(const VariableBinAxis &lhs,
+                         const VariableBinAxis &rhs) {
+    return lhs.fBins == rhs.fBins;
+  }
 };
 
 } // namespace EPHist

@@ -16,6 +16,29 @@ TEST(RegularAxis, Constructor) {
   EXPECT_EQ(axis.GetHigh(), Bins);
 }
 
+TEST(RegularAxis, Equality) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axisA(Bins, 0, Bins);
+  EPHist::RegularAxis axisB(Bins, 0, Bins);
+  EPHist::RegularAxis axisC(Bins / 2, 0, Bins);
+  EPHist::RegularAxis axisD(Bins, 0, Bins / 2);
+  EPHist::RegularAxis axisE(Bins, Bins / 2, Bins);
+
+  EXPECT_TRUE(axisA == axisA);
+  EXPECT_TRUE(axisA == axisB);
+  EXPECT_TRUE(axisB == axisA);
+
+  EXPECT_FALSE(axisA == axisC);
+  EXPECT_FALSE(axisA == axisD);
+  EXPECT_FALSE(axisA == axisE);
+
+  EXPECT_FALSE(axisC == axisD);
+  EXPECT_FALSE(axisC == axisE);
+
+  EXPECT_FALSE(axisD == axisE);
+  EXPECT_FALSE(axisE == axisD);
+}
+
 TEST(RegularAxis, ComputeBin) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

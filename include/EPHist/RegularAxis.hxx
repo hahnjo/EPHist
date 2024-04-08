@@ -33,6 +33,11 @@ public:
     assert(bin >= 0 && bin < fNumBins);
     return bin;
   }
+
+  friend bool operator==(const RegularAxis &lhs, const RegularAxis &rhs) {
+    return lhs.fNumBins == rhs.fNumBins && lhs.fLow == rhs.fLow &&
+           lhs.fHigh == rhs.fHigh;
+  }
 };
 
 } // namespace EPHist

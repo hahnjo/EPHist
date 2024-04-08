@@ -40,6 +40,63 @@ TEST(Basic, MixedAxisTypes) {
   h.Fill<EPHist::VariableBinAxis, EPHist::RegularAxis>(1, 2);
 }
 
+TEST(Basic, Add) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> hA(Bins, 0, Bins);
+  EPHist::EPHist<int> hB(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    hA.Fill(i);
+    hB.Fill(i);
+  }
+
+  EPHist::EPHist<int> hC(Bins, 0, Bins);
+  hC.Add(hA);
+  hC.Add(hB);
+
+  hA.Add(hB);
+
+  for (std::size_t i = 0; i < hA.GetNumBins(); i++) {
+    EXPECT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_EQ(hC.GetBinContent(i), 2);
+  }
+}
+
+TEST(Basic, AddDifferentDimensions) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_THROW(h1.Add(h2), std::invalid_argument);
+}
+
+TEST(Basic, AddDifferentAxisTypes) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  EPHist::EPHist<int> hA(regularAxis);
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  EPHist::EPHist<int> hB(variableBinAxis);
+
+  EXPECT_THROW(hA.Add(hB), std::invalid_argument);
+}
+
+TEST(Basic, AddUnequalRegularAxis) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> hA(Bins, 0, Bins);
+  EPHist::EPHist<int> hB(Bins / 2, 0, Bins);
+
+  EXPECT_THROW(hA.Add(hB), std::invalid_argument);
+}
+
 TEST(Basic, Clear) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h(Bins, 0, Bins);

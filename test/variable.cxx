@@ -19,6 +19,39 @@ TEST(VariableBinAxis, Constructor) {
   EXPECT_EQ(axis.GetNumBins(), Bins);
 }
 
+TEST(VariableBinAxis, Equality) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> binsA;
+  for (std::size_t i = 0; i < Bins; i++) {
+    binsA.push_back(i);
+  }
+  binsA.push_back(Bins);
+
+  std::vector<double> binsB;
+  for (std::size_t i = 0; i < Bins / 2; i++) {
+    binsB.push_back(i);
+  }
+  binsB.push_back(Bins / 2);
+
+  std::vector<double> binsC;
+  for (std::size_t i = Bins / 2; i < Bins; i++) {
+    binsC.push_back(i);
+  }
+  binsC.push_back(Bins);
+
+  EPHist::VariableBinAxis axisA(binsA);
+  EPHist::VariableBinAxis axisA2(binsA);
+  EPHist::VariableBinAxis axisB(binsB);
+  EPHist::VariableBinAxis axisC(binsC);
+
+  EXPECT_TRUE(axisA == axisA);
+  EXPECT_TRUE(axisA == axisA2);
+
+  EXPECT_FALSE(axisA == axisB);
+  EXPECT_FALSE(axisA == axisC);
+  EXPECT_FALSE(axisB == axisC);
+}
+
 TEST(VariableBinAxis, ComputeBin) {
   static constexpr std::size_t Bins = 20;
   std::vector<double> bins;
