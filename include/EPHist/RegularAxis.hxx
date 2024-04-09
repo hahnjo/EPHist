@@ -35,6 +35,14 @@ public:
   double GetLow() const { return fLow; }
   double GetHigh() const { return fHigh; }
 
+  std::size_t GetFirstBin() const {
+    return fEnableUnderflowOverflowBins ? 1 : 0;
+  }
+  double ComputeLowEdge(std::size_t bin) const {
+    assert(0 <= bin && bin < fNumBins);
+    return fLow + bin * (fHigh - fLow) / fNumBins;
+  }
+
   std::pair<std::size_t, bool> ComputeBin(double x) const {
     bool underflow = x < fLow;
     // Put NaNs into overflow bin.

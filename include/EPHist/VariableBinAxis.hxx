@@ -28,7 +28,12 @@ public:
   std::size_t GetTotalNumBins() const {
     return fEnableUnderflowOverflowBins ? fBins.size() + 1 : fBins.size() - 1;
   }
+  const std::vector<double> &GetBins() const { return fBins; }
   double GetBin(std::size_t bin) const { return fBins[bin]; }
+
+  std::size_t GetFirstBin() const {
+    return fEnableUnderflowOverflowBins ? 1 : 0;
+  }
 
   std::pair<std::size_t, bool> ComputeBin(double x) const {
     if (x < fBins.front()) {

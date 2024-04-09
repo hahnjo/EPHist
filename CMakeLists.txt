@@ -26,6 +26,23 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EPHist
 )
 
+option(BUILD_UTIL "Build the EPHistUtil library." ON)
+if(BUILD_UTIL)
+  add_library(EPHistUtil SHARED
+    src/ExportData.cxx
+  )
+  target_include_directories(EPHistUtil INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  target_link_libraries(EPHistUtil PUBLIC EPHist)
+
+  install(TARGETS EPHistUtil EXPORT ${PROJECT_NAME}Targets)
+  install(FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Util/ExportData.hxx
+    DESTINATION include/EPHist/Util
+  )
+endif()
+
 export(EXPORT ${PROJECT_NAME}Targets
   NAMESPACE ${PROJECT_NAME}::
 )
@@ -36,6 +53,7 @@ install(EXPORT ${PROJECT_NAME}Targets
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/EPHistConfig.cmake
   INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/EPHist
+  NO_SET_AND_CHECK_MACRO NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/EPHistConfig.cmake

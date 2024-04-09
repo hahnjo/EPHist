@@ -2,4 +2,26 @@
 
 include("${CMAKE_CURRENT_LIST_DIR}/EPHistTargets.cmake")
 
-check_required_components(EPHist)
+set(EPHist_FOUND TRUE)
+
+foreach(comp ${EPHist_FIND_COMPONENTS})
+  if(comp STREQUAL "Util")
+    # If the target EPHistUtil exists, we declare the Util component found.
+    if(TARGET EPHist::EPHistUtil)
+      set(EPHist_Util_FOUND TRUE)
+    elseif(EPHist_FIND_REQUIRED_Util)
+      set(EPHist_FOUND FALSE)
+      set(EPHist_NOT_FOUND_MESSAGE "EPHistUtil library not installed")
+    endif()
+  else()
+    # Unsupported component (in this version of EPHist); only error if required.
+    if(EPHist_FIND_REQUIRED_${comp})
+      set(EPHist_FOUND FALSE)
+      set(EPHist_NOT_FOUND_MESSAGE "Unsupported component: ${comp}")
+    endif()
+  endif()
+
+  if(NOT EPHist_FOUND)
+    return()
+  endif()
+endforeach()
