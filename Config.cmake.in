@@ -13,6 +13,23 @@ foreach(comp ${EPHist_FIND_COMPONENTS})
       set(EPHist_FOUND FALSE)
       set(EPHist_NOT_FOUND_MESSAGE "EPHistUtil library not installed")
     endif()
+  elseif(comp STREQUAL "UtilROOT")
+    # If the target EPHistUtilROOT exists and we find the ROOT dependency, we
+    # declare the UtilROOT component found.
+    if(TARGET EPHist::EPHistUtilROOT)
+      find_package(ROOT QUIET COMPONENTS Hist)
+      if(ROOT_FOUND)
+        set(EPHist_UtilROOT_FOUND TRUE)
+      elseif(EPHist_FIND_REQUIRED_UtilROOT)
+        # Call find_package again with the REQUIRED keyword to print an error.
+        find_package(ROOT REQUIRED COMPONENTS Hist)
+        set(EPHist_FOUND FALSE)
+        set(EPHist_NOT_FOUND_MESSAGE "ROOT dependency of EPHistUtilROOT not found")
+      endif()
+    elseif(EPHist_FIND_REQUIRED_UtilROOT)
+      set(EPHist_FOUND FALSE)
+      set(EPHist_NOT_FOUND_MESSAGE "EPHistUtilROOT library not installed")
+    endif()
   else()
     # Unsupported component (in this version of EPHist); only error if required.
     if(EPHist_FIND_REQUIRED_${comp})

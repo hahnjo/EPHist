@@ -1,3 +1,7 @@
+# Unset the module path potentially set by ROOT, we want CMake's version of
+# FindGTest.cmake.
+unset(CMAKE_MODULE_PATH)
+
 find_package(GTest)
 if(NOT GTEST_FOUND)
   message(WARNING "GTest not found, disabling tests")
@@ -28,4 +32,10 @@ if(BUILD_UTIL)
   add_executable(test_ExportData ExportData.cxx)
   target_link_libraries(test_ExportData EPHist EPHistUtil GTest::Main)
   add_test(NAME ExportData COMMAND test_ExportData)
+endif()
+
+if(BUILD_UTIL_ROOT)
+  add_executable(test_ConvertToROOT ConvertToROOT.cxx)
+  target_link_libraries(test_ConvertToROOT EPHist EPHistUtilROOT ROOT::Hist GTest::Main)
+  add_test(NAME ConvertToROOT COMMAND test_ConvertToROOT)
 endif()

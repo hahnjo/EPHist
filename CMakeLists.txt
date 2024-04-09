@@ -43,6 +43,30 @@ if(BUILD_UTIL)
   )
 endif()
 
+find_package(ROOT QUIET COMPONENTS Hist)
+option(BUILD_UTIL_ROOT "Build the EPHistUtilROOT library." ${ROOT_FOUND})
+if(BUILD_UTIL_ROOT)
+  if(NOT ROOT_FOUND)
+    # Call find_package again with the REQUIRED keyword to print an error.
+    find_package(ROOT REQUIRED COMPONENTS Hist)
+    message(FATAL_ERROR "EPHistUtilROOT enabled, but ROOT not found")
+  endif()
+
+  add_library(EPHistUtilROOT SHARED
+    src/ConvertToROOT.cxx
+  )
+  target_include_directories(EPHistUtilROOT INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  target_link_libraries(EPHistUtilROOT PUBLIC EPHist ROOT::Hist)
+
+  install(TARGETS EPHistUtilROOT EXPORT ${PROJECT_NAME}Targets)
+  install(FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Util/ConvertToROOT.hxx
+    DESTINATION include/EPHist/Util
+  )
+endif()
+
 export(EXPORT ${PROJECT_NAME}Targets
   NAMESPACE ${PROJECT_NAME}::
 )
