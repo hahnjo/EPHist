@@ -3,6 +3,7 @@
 #ifndef EPHIST_EPHIST
 #define EPHIST_EPHIST
 
+#include "Atomic.hxx"
 #include "DoubleBinWithError.hxx"
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
@@ -252,6 +253,72 @@ public:
     auto bin = ComputeBin<0, Axes...>(0, args...);
     if (bin.second) {
       fData[bin.first] += w.fValue;
+    }
+  }
+
+  template <typename... A> void FillAtomic(const std::tuple<A...> &args) {
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    auto bin = ComputeBin<0>(0, args);
+    if (bin.second) {
+      Internal::AtomicInc(&fData[bin.first]);
+    }
+  }
+
+  template <typename... A> void FillAtomic(const A &...args) {
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    FillAtomic(std::forward_as_tuple(args...));
+  }
+
+  template <class... Axes>
+  void FillAtomic(const typename Axes::ArgumentType &...args) {
+    if (sizeof...(Axes) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    auto bin = ComputeBin<0, Axes...>(0, args...);
+    if (bin.second) {
+      Internal::AtomicInc(&fData[bin.first]);
+    }
+  }
+
+  template <typename... A>
+  void FillAtomic(Weight w, const std::tuple<A...> &args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    auto bin = ComputeBin<0>(0, args);
+    if (bin.second) {
+      Internal::AtomicAdd(&fData[bin.first], w.fValue);
+    }
+  }
+
+  template <typename... A> void FillAtomic(Weight w, const A &...args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    FillAtomic(w, std::forward_as_tuple(args...));
+  }
+
+  template <class... Axes>
+  void FillAtomic(Weight w, const typename Axes::ArgumentType &...args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(Axes) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    auto bin = ComputeBin<0, Axes...>(0, args...);
+    if (bin.second) {
+      Internal::AtomicAdd(&fData[bin.first], w.fValue);
     }
   }
 };

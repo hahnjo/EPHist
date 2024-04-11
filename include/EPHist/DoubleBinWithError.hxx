@@ -3,6 +3,8 @@
 #ifndef EPHIST_DOUBLEBINWITHERROR
 #define EPHIST_DOUBLEBINWITHERROR
 
+#include "Atomic.hxx"
+
 namespace EPHist {
 
 struct DoubleBinWithError {
@@ -25,6 +27,16 @@ struct DoubleBinWithError {
     fSum += value;
     fSum2 += value * value;
     return *this;
+  }
+
+  void AtomicInc() {
+    Internal::AtomicInc(&fSum);
+    Internal::AtomicInc(&fSum2);
+  }
+
+  void AtomicAdd(double value) {
+    Internal::AtomicAdd(&fSum, value);
+    Internal::AtomicAdd(&fSum2, value * value);
   }
 };
 

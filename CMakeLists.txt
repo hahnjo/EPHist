@@ -17,6 +17,7 @@ install(TARGETS EPHist EXPORT ${PROJECT_NAME}Targets)
 # flattens the directory structure on install, and FILE_SETs are only available
 # with CMake v3.23.
 install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Atomic.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/DoubleBinWithError.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/EPHist.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
