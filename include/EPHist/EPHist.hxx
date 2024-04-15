@@ -45,10 +45,10 @@ template <typename T> class EPHist final {
     static constexpr int Mask = 0x7;
 
   public:
-    AxisPtr(AxisVariant &axis) {
-      if (auto *regular = std::get_if<RegularAxis>(&axis)) {
+    AxisPtr(const AxisVariant &axis) {
+      if (const auto *regular = std::get_if<RegularAxis>(&axis)) {
         fValue = reinterpret_cast<std::uintptr_t>(regular);
-      } else if (auto *variable = std::get_if<VariableBinAxis>(&axis)) {
+      } else if (const auto *variable = std::get_if<VariableBinAxis>(&axis)) {
         fValue = reinterpret_cast<std::uintptr_t>(variable);
       } else {
         assert(0 && "unknown axis type");
@@ -66,15 +66,18 @@ template <typename T> class EPHist final {
   };
   std::vector<AxisPtr> fAxesPtrs;
 
-  void SetupAxesPtrs() {
-    fAxesPtrs.clear();
-    for (auto &axis : fAxes) {
-      fAxesPtrs.emplace_back(axis);
+  static std::vector<AxisPtr>
+  PrepareAxesPtrs(const std::vector<AxisVariant> &axes) {
+    std::vector<AxisPtr> axesPtrs;
+    for (const auto &axis : axes) {
+      axesPtrs.emplace_back(axis);
     }
+    return axesPtrs;
   }
 
 public:
-  explicit EPHist(const std::vector<AxisVariant> &axes) : fAxes(axes) {
+  explicit EPHist(const std::vector<AxisVariant> &axes)
+      : fAxes(axes), fAxesPtrs(PrepareAxesPtrs(fAxes)) {
     fTotalNumBins = 1;
     for (auto &&axis : axes) {
       if (auto *regular = std::get_if<RegularAxis>(&axis)) {
@@ -84,7 +87,6 @@ public:
       }
     }
     fData.reset(new T[fTotalNumBins]{});
-    SetupAxesPtrs();
   }
 
   EPHist(std::size_t numBins, double low, double high)
