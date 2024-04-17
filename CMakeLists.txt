@@ -94,3 +94,8 @@ option(BUILD_BENCHMARKS "Build the benchmarks." ON)
 if(BUILD_BENCHMARKS)
   add_subdirectory(benchmark)
 endif()
+
+option(BUILD_EXAMPLES "Build the examples." ON)
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
