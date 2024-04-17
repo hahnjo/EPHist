@@ -38,4 +38,8 @@ if(BUILD_UTIL_ROOT)
   add_executable(test_ConvertToROOT ConvertToROOT.cxx)
   target_link_libraries(test_ConvertToROOT EPHist EPHistUtilROOT ROOT::Hist GTest::Main)
   add_test(NAME ConvertToROOT COMMAND test_ConvertToROOT)
+
+  add_executable(test_RDataFrameHelper RDataFrameHelper.cxx)
+  target_link_libraries(test_RDataFrameHelper EPHist EPHistUtilROOT ROOT::ROOTDataFrame GTest::Main)
+  add_test(NAME RDataFrameHelpers COMMAND test_RDataFrameHelper)
 endif()

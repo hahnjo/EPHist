@@ -17,12 +17,12 @@ foreach(comp ${EPHist_FIND_COMPONENTS})
     # If the target EPHistUtilROOT exists and we find the ROOT dependency, we
     # declare the UtilROOT component found.
     if(TARGET EPHist::EPHistUtilROOT)
-      find_package(ROOT QUIET COMPONENTS Hist)
+      find_package(ROOT QUIET COMPONENTS Hist ROOTDataFrame)
       if(ROOT_FOUND)
         set(EPHist_UtilROOT_FOUND TRUE)
       elseif(EPHist_FIND_REQUIRED_UtilROOT)
         # Call find_package again with the REQUIRED keyword to print an error.
-        find_package(ROOT REQUIRED COMPONENTS Hist)
+        find_package(ROOT REQUIRED COMPONENTS Hist ROOTDataFrame)
         set(EPHist_FOUND FALSE)
         set(EPHist_NOT_FOUND_MESSAGE "ROOT dependency of EPHistUtilROOT not found")
       endif()

@@ -43,12 +43,12 @@ if(BUILD_UTIL)
   )
 endif()
 
-find_package(ROOT QUIET COMPONENTS Hist)
+find_package(ROOT QUIET COMPONENTS Hist ROOTDataFrame)
 option(BUILD_UTIL_ROOT "Build the EPHistUtilROOT library." ${ROOT_FOUND})
 if(BUILD_UTIL_ROOT)
   if(NOT ROOT_FOUND)
     # Call find_package again with the REQUIRED keyword to print an error.
-    find_package(ROOT REQUIRED COMPONENTS Hist)
+    find_package(ROOT REQUIRED COMPONENTS Hist ROOTDataFrame)
     message(FATAL_ERROR "EPHistUtilROOT enabled, but ROOT not found")
   endif()
 
@@ -63,6 +63,7 @@ if(BUILD_UTIL_ROOT)
   install(TARGETS EPHistUtilROOT EXPORT ${PROJECT_NAME}Targets)
   install(FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Util/ConvertToROOT.hxx
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Util/RDataFrameHelper.hxx
     DESTINATION include/EPHist/Util
   )
 endif()
