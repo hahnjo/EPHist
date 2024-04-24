@@ -62,6 +62,40 @@ TEST(DoubleBinWithErrorRegular1D, Fill) {
   }
 }
 
+TEST(DoubleBinWithErrorRegular1D, Add) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<EPHist::DoubleBinWithError> hA(Bins, 0, Bins);
+  EPHist::EPHist<EPHist::DoubleBinWithError> hB(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    hA.Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    hB.Fill(EPHist::Weight(1.5 + i * 0.2), i);
+  }
+
+  EPHist::EPHist<EPHist::DoubleBinWithError> hC(Bins, 0, Bins);
+  hC.Add(hA);
+  hC.Add(hB);
+
+  hA.Add(hB);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    double weightA = 0.5 + i * 0.1;
+    double weightB = 1.5 + i * 0.2;
+    double weightAB2 = weightA * weightA + weightB * weightB;
+    EPHist::DoubleBinWithError binWithError = hA.GetBinContent(i + 1);
+    EXPECT_FLOAT_EQ(binWithError.fSum, weightA + weightB);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weightAB2);
+
+    binWithError = hB.GetBinContent(i + 1);
+    EXPECT_FLOAT_EQ(binWithError.fSum, weightB);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weightB * weightB);
+
+    binWithError = hC.GetBinContent(i + 1);
+    EXPECT_FLOAT_EQ(binWithError.fSum, weightA + weightB);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weightAB2);
+  }
+}
+
 TEST(DoubleBinWithErrorRegular1D, FillWeight) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);

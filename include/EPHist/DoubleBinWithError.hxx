@@ -23,6 +23,12 @@ struct DoubleBinWithError {
     return old;
   }
 
+  DoubleBinWithError &operator+=(const DoubleBinWithError &rhs) {
+    fSum += rhs.fSum;
+    fSum2 += rhs.fSum2;
+    return *this;
+  }
+
   DoubleBinWithError &operator+=(double value) {
     fSum += value;
     fSum2 += value * value;
