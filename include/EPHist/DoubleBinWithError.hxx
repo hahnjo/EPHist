@@ -23,7 +23,7 @@ struct DoubleBinWithError {
     return old;
   }
 
-  DoubleBinWithError operator+=(double value) {
+  DoubleBinWithError &operator+=(double value) {
     fSum += value;
     fSum2 += value * value;
     return *this;
