@@ -10,10 +10,16 @@ namespace Internal {
 
 // A simple version of the functionality provided by C++20 std::atomic_ref.
 
+template <typename T>
+std::enable_if_t<std::is_integral_v<T>> AtomicAdd(T *ptr, T add) {
+  __atomic_fetch_add(ptr, add, __ATOMIC_RELAXED);
+}
+
 // AtomicAddDouble is not needed for integral types.
+
 template <typename T>
 std::enable_if_t<std::is_integral_v<T>> AtomicInc(T *ptr) {
-  __atomic_fetch_add(ptr, 1, __ATOMIC_RELAXED);
+  AtomicAdd(ptr, static_cast<T>(1));
 }
 
 template <typename T>
@@ -37,6 +43,12 @@ std::enable_if_t<std::is_floating_point_v<T>> AtomicAddDouble(T *ptr,
 template <typename T>
 std::enable_if_t<std::is_floating_point_v<T>> AtomicInc(T *ptr) {
   AtomicAdd(ptr, static_cast<T>(1));
+}
+
+template <typename T>
+std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::AtomicAdd)>>
+AtomicAdd(T *ptr, const T &add) {
+  ptr->AtomicAdd(add);
 }
 
 template <typename T>

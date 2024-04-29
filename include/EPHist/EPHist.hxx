@@ -113,6 +113,15 @@ public:
     }
   }
 
+  void AddAtomic(const EPHist<T> &other) {
+    if (fAxes != other.fAxes) {
+      throw std::invalid_argument("axes configuration not identical");
+    }
+    for (std::size_t i = 0; i < fTotalNumBins; i++) {
+      Internal::AtomicAdd(&fData[i], other.fData[i]);
+    }
+  }
+
   void Clear() {
     for (std::size_t i = 0; i < fTotalNumBins; i++) {
       fData[i] = {};
