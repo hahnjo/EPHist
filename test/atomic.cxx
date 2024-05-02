@@ -49,6 +49,90 @@ TEST(IntRegular1D, TemplatedFillAtomic) {
   }
 }
 
+TEST(FloatRegular1D, FillAtomic) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  h1.FillAtomic(-100);
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic(i);
+  }
+  h1.FillAtomic(100);
+
+  for (std::size_t i = 0; i < h1.GetTotalNumBins(); i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 1);
+  }
+}
+
+TEST(FloatRegular1D, FillAtomicTuple) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  h1.FillAtomic(std::make_tuple(-100));
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic(std::make_tuple(i));
+  }
+  h1.FillAtomic(std::make_tuple(100));
+
+  for (std::size_t i = 0; i < h1.GetTotalNumBins(); i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 1);
+  }
+}
+
+TEST(FloatRegular1D, TemplatedFillAtomic) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  h1.FillAtomic<EPHist::RegularAxis>(-100);
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic<EPHist::RegularAxis>(i);
+  }
+  h1.FillAtomic<EPHist::RegularAxis>(100);
+
+  for (std::size_t i = 0; i < h1.GetTotalNumBins(); i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 1);
+  }
+}
+
+TEST(FloatRegular1D, FillAtomicWeight) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), i);
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(FloatRegular1D, FillAtomicTupleWeight) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(FloatRegular1D, TemplatedFillAtomicWeight) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<float> h1(Bins, 0, Bins);
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    h1.FillAtomic<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
 TEST(DoubleRegular1D, FillAtomic) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<double> h1(Bins, 0, Bins);
