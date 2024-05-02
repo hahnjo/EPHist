@@ -40,7 +40,7 @@ struct DoubleBinWithError {
     Internal::AtomicInc(&fSum2);
   }
 
-  void AtomicAdd(double value) {
+  void AtomicAddDouble(double value) {
     Internal::AtomicAdd(&fSum, value);
     Internal::AtomicAdd(&fSum2, value * value);
   }

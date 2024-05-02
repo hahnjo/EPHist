@@ -296,7 +296,7 @@ public:
     }
     auto bin = ComputeBin<0>(0, args);
     if (bin.second) {
-      Internal::AtomicAdd(&fData[bin.first], w.fValue);
+      Internal::AtomicAddDouble(&fData[bin.first], w.fValue);
     }
   }
 
@@ -320,7 +320,7 @@ public:
     }
     auto bin = ComputeBin<0, Axes...>(0, args...);
     if (bin.second) {
-      Internal::AtomicAdd(&fData[bin.first], w.fValue);
+      Internal::AtomicAddDouble(&fData[bin.first], w.fValue);
     }
   }
 };
