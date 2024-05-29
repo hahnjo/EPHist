@@ -4,6 +4,7 @@
 #define EPHIST_UTIL_RDATAFRAMEHELPER
 
 #include "../EPHist.hxx"
+#include "../ParallelHelper.hxx"
 
 #include <ROOT/RDF/RActionImpl.hxx>
 
@@ -13,6 +14,45 @@ class TTreeReader;
 
 namespace EPHist {
 namespace Util {
+
+template <typename T>
+class EPHistFillHelper
+    : public ROOT::Detail::RDF::RActionImpl<EPHistFillHelper<T>> {
+public:
+  using Result_t = EPHist<T>;
+
+private:
+  std::shared_ptr<Result_t> fHist;
+  std::unique_ptr<ParallelHelper<T>> fParallelHelper;
+  std::vector<std::shared_ptr<FillContext<T>>> fFillContexts;
+
+public:
+  template <typename... Args>
+  EPHistFillHelper(unsigned int nSlots, const Args &...args) {
+    fHist = std::make_shared<Result_t>(args...);
+    fParallelHelper.reset(new ParallelHelper(fHist));
+    for (unsigned int i = 0; i < nSlots; i++) {
+      fFillContexts.emplace_back(fParallelHelper->CreateFillContext());
+    }
+  }
+  EPHistFillHelper(EPHistFillHelper &&) = default;
+  EPHistFillHelper(const EPHistFillHelper &) = delete;
+  std::shared_ptr<Result_t> GetResultPtr() const { return fHist; }
+  void Initialize() {}
+  void InitTask(TTreeReader *, unsigned int) {}
+  template <typename... ColumnTypes>
+  void Exec(unsigned int slot, ColumnTypes... values) {
+    fFillContexts[slot]->Fill(values...);
+  }
+  void Finalize() {
+    for (auto &&context : fFillContexts) {
+      context->Flush();
+    }
+    fParallelHelper->Flush();
+  }
+
+  std::string GetActionName() const { return "EPHistFillHelper"; }
+};
 
 template <typename T>
 class EPHistFillAddHelper
