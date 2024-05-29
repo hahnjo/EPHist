@@ -53,6 +53,39 @@ public:
     }
     fHist->template FillAtomic<Axes...>(args...);
   }
+
+  static constexpr bool WeightedFill = EPHist<T>::WeightedFill;
+
+  template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fHist->GetNumDimensions()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    fHist->FillAtomic(w, args);
+  }
+
+  template <typename... A> void Fill(Weight w, const A &...args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(A) != fHist->GetNumDimensions()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    Fill(w, std::forward_as_tuple(args...));
+  }
+
+  template <class... Axes>
+  void Fill(Weight w, const typename Axes::ArgumentType &...args) {
+    static_assert(
+        WeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    if (sizeof...(Axes) != fHist->GetNumDimensions()) {
+      throw std::invalid_argument("invalid number of arguments to Fill");
+    }
+    fHist->template FillAtomic<Axes...>(w, args...);
+  }
 };
 
 template <typename T> class ParallelHelper final {

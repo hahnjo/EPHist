@@ -3,6 +3,7 @@
 #include <EPHist/EPHist.hxx>
 #include <EPHist/ParallelHelper.hxx>
 #include <EPHist/RegularAxis.hxx>
+#include <EPHist/Weight.hxx>
 
 #include <gtest/gtest.h>
 
@@ -189,6 +190,57 @@ TEST(ParallelHelperFloatRegular1D, TemplatedFill) {
   }
 }
 
+TEST(ParallelHelperFloatRegular1D, FillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<float>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(ParallelHelperFloatRegular1D, FillTupleWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<float>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(ParallelHelperFloatRegular1D, TemplatedFillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<float>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
 TEST(ParallelHelperDoubleRegular1D, Fill) {
   static constexpr std::size_t Bins = 20;
   auto h1 = std::make_shared<EPHist::EPHist<double>>(Bins, 0, Bins);
@@ -243,6 +295,57 @@ TEST(ParallelHelperDoubleRegular1D, TemplatedFill) {
 
   for (std::size_t i = 0; i < h1->GetTotalNumBins(); i++) {
     EXPECT_FLOAT_EQ(h1->GetBinContent(i), 1);
+  }
+}
+
+TEST(ParallelHelperDoubleRegular1D, FillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(ParallelHelperDoubleRegular1D, FillTupleWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+  }
+}
+
+TEST(ParallelHelperDoubleRegular1D, TemplatedFillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
   }
 }
 
@@ -309,5 +412,68 @@ TEST(ParallelHelperDoubleBinWithErrorRegular1D, TemplatedFill) {
     auto &binWithError = h1->GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, 1);
     EXPECT_FLOAT_EQ(binWithError.fSum2, 1);
+  }
+}
+
+TEST(ParallelHelperDoubleBinWithErrorRegular1D, FillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<EPHist::DoubleBinWithError>>(
+      Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    auto &binWithError = h1->GetBinContent(i + 1);
+    double weight = 0.5 + i * 0.1;
+    EXPECT_FLOAT_EQ(binWithError.fSum, weight);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
+  }
+}
+
+TEST(ParallelHelperDoubleBinWithErrorRegular1D, FillTupleWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<EPHist::DoubleBinWithError>>(
+      Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    auto &binWithError = h1->GetBinContent(i + 1);
+    double weight = 0.5 + i * 0.1;
+    EXPECT_FLOAT_EQ(binWithError.fSum, weight);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
+  }
+}
+
+TEST(ParallelHelperDoubleBinWithErrorRegular1D, TemplatedFillWeight) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<EPHist::DoubleBinWithError>>(
+      Bins, 0, Bins);
+
+  {
+    EPHist::ParallelHelper helper(h1);
+    auto context = helper.CreateFillContext();
+    for (std::size_t i = 0; i < Bins; i++) {
+      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    }
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    auto &binWithError = h1->GetBinContent(i + 1);
+    double weight = 0.5 + i * 0.1;
+    EXPECT_FLOAT_EQ(binWithError.fSum, weight);
+    EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
   }
 }
