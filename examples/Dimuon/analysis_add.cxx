@@ -56,7 +56,7 @@ void df102_NanoAODDimuonAnalysis()
    auto df_mass = df_os.Define("Dimuon_mass", InvariantMass<float>, {"Muon_pt", "Muon_eta", "Muon_phi", "Muon_mass"});
 
    // Make histogram of dimuon mass spectrum
-   EPHist::Util::EPHistFillHelper<double> helper(df.GetNSlots(), 30000, 0.25, 300);
+   EPHist::Util::EPHistFillAddHelper<double> helper(df.GetNSlots(), 30000, 0.25, 300);
    auto hist = df_mass.Book<float>(std::move(helper), {"Dimuon_mass"});
 
    // Request cut-flow report

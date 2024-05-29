@@ -7,17 +7,17 @@
 
 #include <gtest/gtest.h>
 
-TEST(EPHistFillHelper, IntRegular1D) {
+TEST(EPHistFillAddHelper, IntRegular1D) {
   // The same histograms as IntRegular1D.FillOnlyInner in regular.cxx
   static constexpr std::size_t Bins = 20;
   ROOT::RDataFrame df(Bins);
 
-  EPHist::Util::EPHistFillHelper<int> helper(df.GetNSlots(), Bins, 0, Bins);
+  EPHist::Util::EPHistFillAddHelper<int> helper(df.GetNSlots(), Bins, 0, Bins);
   auto h1 = df.Book<ULong64_t>(std::move(helper), {"rdfentry_"});
 
   EPHist::RegularAxis axisNoUnderflowOverflow(
       Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::Util::EPHistFillHelper<int> helperNoUnderflowOverflow(
+  EPHist::Util::EPHistFillAddHelper<int> helperNoUnderflowOverflow(
       df.GetNSlots(), axisNoUnderflowOverflow);
   auto h1NoUnderflowOverflow =
       df.Book<ULong64_t>(std::move(helperNoUnderflowOverflow), {"rdfentry_"});
@@ -35,7 +35,7 @@ TEST(EPHistFillHelper, IntRegular1D) {
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
 }
 
-TEST(EPHistFillHelper, IntRegular2D) {
+TEST(EPHistFillAddHelper, IntRegular2D) {
   // The same histogram as IntRegular2D.FillOnlyInner in regular.cxx
   static constexpr std::size_t BinsX = 20;
   EPHist::RegularAxis axisX(BinsX, 0, BinsX);
@@ -50,7 +50,7 @@ TEST(EPHistFillHelper, IntRegular2D) {
 
   // TODO: Ideally accept a brace-enclosed initializer list
   std::vector<EPHist::AxisVariant> axes{axisX, axisY};
-  EPHist::Util::EPHistFillHelper<int> helper(df.GetNSlots(), axes);
+  EPHist::Util::EPHistFillAddHelper<int> helper(df.GetNSlots(), axes);
   auto h2 = df.Book<ULong64_t, ULong64_t>(std::move(helper), {"x", "y"});
 
   EXPECT_EQ(h2->GetTotalNumBins(), (BinsX + 2) * (BinsY + 2));

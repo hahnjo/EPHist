@@ -15,8 +15,8 @@ namespace EPHist {
 namespace Util {
 
 template <typename T>
-class EPHistFillHelper
-    : public ROOT::Detail::RDF::RActionImpl<EPHistFillHelper<T>> {
+class EPHistFillAddHelper
+    : public ROOT::Detail::RDF::RActionImpl<EPHistFillAddHelper<T>> {
 public:
   using Result_t = EPHist<T>;
 
@@ -25,13 +25,13 @@ private:
 
 public:
   template <typename... Args>
-  EPHistFillHelper(unsigned int nSlots, const Args &...args) {
+  EPHistFillAddHelper(unsigned int nSlots, const Args &...args) {
     for (unsigned int i = 0; i < nSlots; i++) {
       fHists.emplace_back(std::make_shared<Result_t>(args...));
     }
   }
-  EPHistFillHelper(const EPHistFillHelper &) = delete;
-  EPHistFillHelper(EPHistFillHelper &&) = default;
+  EPHistFillAddHelper(const EPHistFillAddHelper &) = delete;
+  EPHistFillAddHelper(EPHistFillAddHelper &&) = default;
   std::shared_ptr<Result_t> GetResultPtr() const { return fHists[0]; }
   void Initialize() {}
   void InitTask(TTreeReader *, unsigned int) {}
@@ -46,7 +46,7 @@ public:
     }
   }
 
-  std::string GetActionName() const { return "EPHistFillHelper"; }
+  std::string GetActionName() const { return "EPHistFillAddHelper"; }
 };
 
 template <typename T>
