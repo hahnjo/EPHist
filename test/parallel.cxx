@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <EPHist/EPHist.hxx>
+#include <EPHist/ParallelFillStrategy.hxx>
 #include <EPHist/ParallelHelper.hxx>
 #include <EPHist/RegularAxis.hxx>
 #include <EPHist/Weight.hxx>
@@ -9,6 +10,22 @@
 
 #include <memory>
 #include <tuple>
+
+TEST(ParallelHelperIntRegular1D, Constructor) {
+  static constexpr std::size_t Bins = 20;
+  auto h1 = std::make_shared<EPHist::EPHist<int>>(Bins, 0, Bins);
+  { EPHist::ParallelHelper helper(h1); }
+
+  {
+    EPHist::ParallelHelper helperAuto(h1,
+                                      EPHist::ParallelFillStrategy::Automatic);
+  }
+
+  {
+    EPHist::ParallelHelper helperAtomic(h1,
+                                        EPHist::ParallelFillStrategy::Atomic);
+  }
+}
 
 TEST(ParallelHelperIntRegular1D, CreateFillContext) {
   static constexpr std::size_t Bins = 20;

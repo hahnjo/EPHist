@@ -4,7 +4,9 @@
 #define EPHIST_FILLCONTEXT
 
 #include "EPHist.hxx"
+#include "ParallelFillStrategy.hxx"
 
+#include <cassert>
 #include <tuple>
 
 namespace EPHist {
@@ -16,8 +18,12 @@ template <typename T> class FillContext final {
 
 private:
   EPHist<T> *fHist;
+  ParallelFillStrategy fStrategy;
 
-  explicit FillContext(EPHist<T> &hist) : fHist(&hist) {}
+  explicit FillContext(EPHist<T> &hist, ParallelFillStrategy strategy)
+      : fHist(&hist), fStrategy(strategy) {
+    assert(fStrategy != ParallelFillStrategy::Automatic);
+  }
   FillContext(const FillContext<T> &) = delete;
   FillContext(FillContext<T> &&) = default;
   FillContext<T> &operator=(const FillContext<T> &) = delete;
