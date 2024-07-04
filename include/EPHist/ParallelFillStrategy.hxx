@@ -8,6 +8,7 @@ namespace EPHist {
 enum class ParallelFillStrategy {
   Automatic = 0,
   Atomic = 1,
+  PerFillContext = 2,
 };
 
 } // namespace EPHist
