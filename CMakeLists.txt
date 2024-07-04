@@ -20,6 +20,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Atomic.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/DoubleBinWithError.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/EPHist.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/FillContext.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/ParallelHelper.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/VariableBinAxis.hxx
