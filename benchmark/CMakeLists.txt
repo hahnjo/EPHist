@@ -1,6 +1,10 @@
+find_package(Threads REQUIRED)
+add_executable(benchmark_mt_int_regular1D mt_int_regular1D.cxx)
+target_link_libraries(benchmark_mt_int_regular1D EPHist Threads::Threads)
+
 find_package(benchmark QUIET)
 if(NOT benchmark_FOUND)
-  message(WARNING "benchmark not found, disabling benchmarks")
+  message(WARNING "benchmark not found, disabling most benchmarks")
   return()
 endif()
 
