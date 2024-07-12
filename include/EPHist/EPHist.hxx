@@ -227,12 +227,12 @@ public:
     }
   }
 
-  static constexpr bool WeightedFill =
+  static constexpr bool SupportsWeightedFill =
       std::is_floating_point_v<T> || std::is_same_v<T, DoubleBinWithError>;
 
   template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -245,7 +245,7 @@ public:
 
   template <typename... A> void Fill(Weight w, const A &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -256,7 +256,7 @@ public:
   template <class... Axes>
   void Fill(Weight w, const typename Axes::ArgumentType &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(Axes) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -298,7 +298,7 @@ public:
   template <typename... A>
   void FillAtomic(Weight w, const std::tuple<A...> &args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -311,7 +311,7 @@ public:
 
   template <typename... A> void FillAtomic(Weight w, const A &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -322,7 +322,7 @@ public:
   template <class... Axes>
   void FillAtomic(Weight w, const typename Axes::ArgumentType &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(Axes) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to Fill");

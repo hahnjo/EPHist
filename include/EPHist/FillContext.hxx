@@ -93,11 +93,11 @@ public:
     }
   }
 
-  static constexpr bool WeightedFill = EPHist<T>::WeightedFill;
+  static constexpr bool SupportsWeightedFill = EPHist<T>::SupportsWeightedFill;
 
   template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fHist->GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -116,7 +116,7 @@ public:
 
   template <typename... A> void Fill(Weight w, const A &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fHist->GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -127,7 +127,7 @@ public:
   template <class... Axes>
   void Fill(Weight w, const typename Axes::ArgumentType &...args) {
     static_assert(
-        WeightedFill,
+        SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(Axes) != fHist->GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
