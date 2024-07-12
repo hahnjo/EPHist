@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <EPHist/DoubleBinWithError.hxx>
 #include <EPHist/EPHist.hxx>
 
 #include <gtest/gtest.h>
