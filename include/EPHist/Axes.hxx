@@ -32,44 +32,8 @@ namespace Detail {
 class Axes {
   std::vector<AxisVariant> fAxes;
 
-  class AxisPtr {
-    std::uintptr_t fValue;
-    static constexpr int Mask = 0x7;
-
-  public:
-    AxisPtr(const AxisVariant &axis) {
-      if (const auto *regular = std::get_if<RegularAxis>(&axis)) {
-        fValue = reinterpret_cast<std::uintptr_t>(regular);
-      } else if (const auto *variable = std::get_if<VariableBinAxis>(&axis)) {
-        fValue = reinterpret_cast<std::uintptr_t>(variable);
-      } else {
-        assert(0 && "unknown axis type");
-      }
-      assert((fValue & Mask) == 0 && "lower bits of pointer not 0");
-      std::size_t idx = axis.index();
-      assert(idx <= Mask);
-      fValue |= idx;
-    }
-
-    const void *GetPointer() const {
-      return reinterpret_cast<const void *>(fValue & ~Mask);
-    }
-    int GetIndex() const { return fValue & Mask; }
-  };
-  std::vector<AxisPtr> fAxesPtrs;
-
-  static std::vector<AxisPtr>
-  PrepareAxesPtrs(const std::vector<AxisVariant> &axes) {
-    std::vector<AxisPtr> axesPtrs;
-    for (const auto &axis : axes) {
-      axesPtrs.emplace_back(axis);
-    }
-    return axesPtrs;
-  }
-
 public:
-  explicit Axes(const std::vector<AxisVariant> &axes)
-      : fAxes(axes), fAxesPtrs(PrepareAxesPtrs(fAxes)) {}
+  explicit Axes(const std::vector<AxisVariant> &axes) : fAxes(axes) {}
 
   std::size_t GetNumDimensions() const { return fAxes.size(); }
   const std::vector<AxisVariant> &GetVector() const { return fAxes; }
@@ -90,19 +54,17 @@ private:
   template <std::size_t I, typename... A>
   std::pair<std::size_t, bool> ComputeBin(std::size_t bin,
                                           const std::tuple<A...> &args) const {
-    const auto &axisPtr = fAxesPtrs[I];
+    const auto &axis = fAxes[I];
     std::pair<std::size_t, bool> axisBin;
-    switch (axisPtr.GetIndex()) {
+    switch (axis.index()) {
     case Internal::AxisVariantIndex<RegularAxis>::value: {
-      const auto *regular =
-          static_cast<const RegularAxis *>(axisPtr.GetPointer());
+      const auto *regular = std::get_if<RegularAxis>(&axis);
       bin *= regular->GetTotalNumBins();
       axisBin = regular->ComputeBin(std::get<I>(args));
       break;
     }
     case Internal::AxisVariantIndex<VariableBinAxis>::value: {
-      const auto *variable =
-          static_cast<const VariableBinAxis *>(axisPtr.GetPointer());
+      const auto *variable = std::get_if<VariableBinAxis>(&axis);
       bin *= variable->GetTotalNumBins();
       axisBin = variable->ComputeBin(std::get<I>(args));
       break;
@@ -122,11 +84,11 @@ private:
   std::pair<std::size_t, bool>
   ComputeBin(std::size_t bin, const typename Axis::ArgumentType &arg,
              const typename Axes::ArgumentType &...args) const {
-    const auto &axisPtr = fAxesPtrs[I];
-    if (Internal::AxisVariantIndex<Axis>::value != axisPtr.GetIndex()) {
+    const auto &axisVariant = fAxes[I];
+    if (Internal::AxisVariantIndex<Axis>::value != axisVariant.index()) {
       throw std::invalid_argument("invalid axis type");
     }
-    const auto &axis = *static_cast<const Axis *>(axisPtr.GetPointer());
+    const auto &axis = *std::get_if<Axis>(&axisVariant);
     bin = bin * axis.GetTotalNumBins();
     auto axisBin = axis.ComputeBin(arg);
     if (!axisBin.second) {
