@@ -57,9 +57,9 @@ TEST(Basic, Add) {
   hA.Add(hB);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(hA.GetBinContent(i + 1), 2);
-    EXPECT_EQ(hB.GetBinContent(i + 1), 1);
-    EXPECT_EQ(hC.GetBinContent(i + 1), 2);
+    EXPECT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_EQ(hC.GetBinContent(i), 2);
   }
 }
 
@@ -136,7 +136,7 @@ TEST(Basic, Clone) {
   ASSERT_EQ(hB.GetNumDimensions(), 1);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(hB.GetBinContent(i + 1), 1);
+    EXPECT_EQ(hB.GetBinContent(i), 1);
   }
 
   // Check that we can continue filling the clone.
@@ -145,8 +145,8 @@ TEST(Basic, Clone) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(hA.GetBinContent(i + 1), 1);
-    EXPECT_EQ(hB.GetBinContent(i + 1), 2);
+    EXPECT_EQ(hA.GetBinContent(i), 1);
+    EXPECT_EQ(hB.GetBinContent(i), 2);
   }
 }
 

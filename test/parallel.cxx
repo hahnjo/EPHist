@@ -249,7 +249,7 @@ TEST_P(ParallelHelperFloatRegular1D, FillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -266,7 +266,7 @@ TEST_P(ParallelHelperFloatRegular1D, FillTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -283,7 +283,7 @@ TEST_P(ParallelHelperFloatRegular1D, TemplatedFillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -363,7 +363,7 @@ TEST_P(ParallelHelperDoubleRegular1D, FillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -380,7 +380,7 @@ TEST_P(ParallelHelperDoubleRegular1D, FillTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -397,7 +397,7 @@ TEST_P(ParallelHelperDoubleRegular1D, TemplatedFillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1->GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1->GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -487,7 +487,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, FillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1->GetBinContent(i + 1);
+    auto &binWithError = h1->GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -508,7 +508,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, FillTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1->GetBinContent(i + 1);
+    auto &binWithError = h1->GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -529,7 +529,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, TemplatedFillWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1->GetBinContent(i + 1);
+    auto &binWithError = h1->GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);

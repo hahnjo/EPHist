@@ -30,14 +30,13 @@ public:
   }
   const std::vector<double> &GetBins() const { return fBins; }
   double GetBin(std::size_t bin) const { return fBins[bin]; }
-
-  std::size_t GetFirstBin() const {
-    return fEnableUnderflowOverflowBins ? 1 : 0;
+  bool AreUnderflowOverflowBinsEnabled() const {
+    return fEnableUnderflowOverflowBins;
   }
 
   std::pair<std::size_t, bool> ComputeBin(double x) const {
     if (x < fBins.front()) {
-      return {0, fEnableUnderflowOverflowBins};
+      return {fBins.size() - 1, fEnableUnderflowOverflowBins};
     } else if (!(x < fBins.back())) {
       // Put NaNs into overflow bin.
       return {fBins.size(), fEnableUnderflowOverflowBins};
@@ -47,15 +46,11 @@ public:
     assert(x >= fBins.front());
     for (std::size_t bin = 0; bin < fBins.size() - 1; bin++) {
       if (x < fBins[bin + 1]) {
-        // If underflow and overflow bins are enabled, shift bin by one.
-        bin += fEnableUnderflowOverflowBins;
         return {bin, true};
       }
     }
     assert(x < fBins.back());
     std::size_t bin = fBins.size() - 1;
-    // If underflow and overflow bins are enabled, shift bin by one.
-    bin += fEnableUnderflowOverflowBins;
     return {bin, fEnableUnderflowOverflowBins};
   }
 

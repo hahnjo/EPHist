@@ -27,11 +27,11 @@ TEST(EPHistFillHelper, IntRegular1D) {
   ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
   EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
 
-  EXPECT_EQ(h1->GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1->GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1->GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
 }
 
@@ -56,17 +56,15 @@ TEST(EPHistFillHelper, IntRegular2D) {
   EXPECT_EQ(h2->GetTotalNumBins(), (BinsX + 2) * (BinsY + 2));
   EXPECT_EQ(h2->GetNumDimensions(), 2);
 
-  for (std::size_t y = 0; y < BinsY + 2; y++) {
-    EXPECT_EQ(h2->GetBinContent(y), 0);
-  }
   for (std::size_t x = 0; x < BinsX; x++) {
-    EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2)), 0);
     for (std::size_t y = 0; y < BinsY; y++) {
-      EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2) + y + 1), 1);
+      EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + y), 1);
     }
-    EXPECT_EQ(h2->GetBinContent((x + 2) * (BinsY + 2) - 1), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY + 1), 0);
   }
   for (std::size_t y = 0; y < BinsY + 2; y++) {
+    EXPECT_EQ(h2->GetBinContent(BinsX * (BinsY + 2) + y), 0);
     EXPECT_EQ(h2->GetBinContent((BinsX + 1) * (BinsY + 2) + y), 0);
   }
 }
@@ -91,11 +89,11 @@ TEST(EPHistFillAddHelper, IntRegular1D) {
   ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
   EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
 
-  EXPECT_EQ(h1->GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1->GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1->GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
 }
 
@@ -120,17 +118,15 @@ TEST(EPHistFillAddHelper, IntRegular2D) {
   EXPECT_EQ(h2->GetTotalNumBins(), (BinsX + 2) * (BinsY + 2));
   EXPECT_EQ(h2->GetNumDimensions(), 2);
 
-  for (std::size_t y = 0; y < BinsY + 2; y++) {
-    EXPECT_EQ(h2->GetBinContent(y), 0);
-  }
   for (std::size_t x = 0; x < BinsX; x++) {
-    EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2)), 0);
     for (std::size_t y = 0; y < BinsY; y++) {
-      EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2) + y + 1), 1);
+      EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + y), 1);
     }
-    EXPECT_EQ(h2->GetBinContent((x + 2) * (BinsY + 2) - 1), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY + 1), 0);
   }
   for (std::size_t y = 0; y < BinsY + 2; y++) {
+    EXPECT_EQ(h2->GetBinContent(BinsX * (BinsY + 2) + y), 0);
     EXPECT_EQ(h2->GetBinContent((BinsX + 1) * (BinsY + 2) + y), 0);
   }
 }
@@ -155,11 +151,11 @@ TEST(EPHistFillAtomicHelper, IntRegular1D) {
   ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
   EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
 
-  EXPECT_EQ(h1->GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1->GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1->GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
 }
 
@@ -184,17 +180,15 @@ TEST(EPHistFillAtomicHelper, IntRegular2D) {
   EXPECT_EQ(h2->GetTotalNumBins(), (BinsX + 2) * (BinsY + 2));
   EXPECT_EQ(h2->GetNumDimensions(), 2);
 
-  for (std::size_t y = 0; y < BinsY + 2; y++) {
-    EXPECT_EQ(h2->GetBinContent(y), 0);
-  }
   for (std::size_t x = 0; x < BinsX; x++) {
-    EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2)), 0);
     for (std::size_t y = 0; y < BinsY; y++) {
-      EXPECT_EQ(h2->GetBinContent((x + 1) * (BinsY + 2) + y + 1), 1);
+      EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + y), 1);
     }
-    EXPECT_EQ(h2->GetBinContent((x + 2) * (BinsY + 2) - 1), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY), 0);
+    EXPECT_EQ(h2->GetBinContent(x * (BinsY + 2) + BinsY + 1), 0);
   }
   for (std::size_t y = 0; y < BinsY + 2; y++) {
+    EXPECT_EQ(h2->GetBinContent(BinsX * (BinsY + 2) + y), 0);
     EXPECT_EQ(h2->GetBinContent((BinsX + 1) * (BinsY + 2) + y), 0);
   }
 }

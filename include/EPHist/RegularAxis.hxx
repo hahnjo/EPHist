@@ -34,10 +34,10 @@ public:
   }
   double GetLow() const { return fLow; }
   double GetHigh() const { return fHigh; }
-
-  std::size_t GetFirstBin() const {
-    return fEnableUnderflowOverflowBins ? 1 : 0;
+  bool AreUnderflowOverflowBinsEnabled() const {
+    return fEnableUnderflowOverflowBins;
   }
+
   double ComputeLowEdge(std::size_t bin) const {
     assert(0 <= bin && bin < fNumBins);
     return fLow + bin * (fHigh - fLow) / fNumBins;
@@ -48,14 +48,12 @@ public:
     // Put NaNs into overflow bin.
     bool overflow = !(x < fHigh);
     if (underflow) {
-      return {0, fEnableUnderflowOverflowBins};
+      return {fNumBins, fEnableUnderflowOverflowBins};
     } else if (overflow) {
       return {fNumBins + 1, fEnableUnderflowOverflowBins};
     }
 
     std::size_t bin = (x - fLow) * fInvBinWidth;
-    // If underflow and overflow bins are enabled, shift bin by one.
-    bin += fEnableUnderflowOverflowBins;
     return {bin, true};
   }
 

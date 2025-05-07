@@ -20,29 +20,28 @@ std::unique_ptr<Hist> ConvertToTH1(const EPHist::EPHist<T> &h) {
   std::unique_ptr<Hist> out;
 
   const auto &axes = h.GetAxes();
-  std::size_t binIndex = -1;
+  bool enableUnderflowOverflowBins = true;
   std::size_t numBins = -1;
   if (const auto *regular = std::get_if<EPHist::RegularAxis>(&axes[0])) {
-    binIndex = regular->GetFirstBin();
+    enableUnderflowOverflowBins = regular->AreUnderflowOverflowBinsEnabled();
     numBins = regular->GetNumBins();
     out.reset(new Hist("", "", numBins, regular->GetLow(), regular->GetHigh()));
   } else if (const auto *variable =
                  std::get_if<EPHist::VariableBinAxis>(&axes[0])) {
-    binIndex = variable->GetFirstBin();
+    enableUnderflowOverflowBins = variable->AreUnderflowOverflowBinsEnabled();
     numBins = variable->GetNumBins();
     const auto &bins = variable->GetBins();
     out.reset(new Hist("", "", numBins, bins.data()));
   }
 
-  if (binIndex != 0) {
+  if (enableUnderflowOverflowBins) {
     // Set underflow and overflow bins.
-    out->SetBinContent(0, h.GetBinContent(0));
+    out->SetBinContent(0, h.GetBinContent(numBins));
     out->SetBinContent(numBins + 1, h.GetBinContent(numBins + 1));
   }
 
   for (std::size_t i = 0; i < numBins; i++) {
-    out->SetBinContent(i + 1, h.GetBinContent(binIndex));
-    binIndex++;
+    out->SetBinContent(i + 1, h.GetBinContent(i));
   }
   return out;
 }

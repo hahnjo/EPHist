@@ -82,7 +82,7 @@ TEST(VariableBinAxis, ComputeBin) {
   for (double underflow : {NegativeInfinity, UnderflowLarge, UnderflowSmall}) {
     auto axisBin = axis.ComputeBin(underflow);
     EXPECT_TRUE(axisBin.second);
-    EXPECT_EQ(axisBin.first, 0);
+    EXPECT_EQ(axisBin.first, Bins);
     axisBin = axisNoUnderflowOverflow.ComputeBin(underflow);
     EXPECT_FALSE(axisBin.second);
   }
@@ -90,7 +90,7 @@ TEST(VariableBinAxis, ComputeBin) {
   for (std::size_t i = 0; i < Bins; i++) {
     auto axisBin = axis.ComputeBin(i + 0.5);
     EXPECT_TRUE(axisBin.second);
-    EXPECT_EQ(axisBin.first, i + 1);
+    EXPECT_EQ(axisBin.first, i);
     axisBin = axisNoUnderflowOverflow.ComputeBin(i + 0.5);
     EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, i);
@@ -194,11 +194,11 @@ TEST(IntVariableBin1D, FillOnlyInner) {
     h1NoUnderflowOverflow.Fill(i);
   }
 
-  EXPECT_EQ(h1.GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1.GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1.GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
 }
 
@@ -265,11 +265,11 @@ TEST(IntVariableBin1D, FillTupleOnlyInner) {
     h1NoUnderflowOverflow.Fill(std::make_tuple(i));
   }
 
-  EXPECT_EQ(h1.GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1.GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1.GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
 }
 
@@ -336,10 +336,10 @@ TEST(IntVariableBin1D, TemplatedFillOnlyInner) {
     h1NoUnderflowOverflow.Fill<EPHist::VariableBinAxis>(i);
   }
 
-  EXPECT_EQ(h1.GetBinContent(0), 0);
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(h1.GetBinContent(i + 1), 1);
+    EXPECT_EQ(h1.GetBinContent(i), 1);
     EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
   }
+  EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
 }

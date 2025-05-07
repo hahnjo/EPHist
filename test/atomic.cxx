@@ -22,9 +22,9 @@ TEST(IntRegular1D, AddAtomic) {
   hA.AddAtomic(hB);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(hA.GetBinContent(i + 1), 2);
-    EXPECT_EQ(hB.GetBinContent(i + 1), 1);
-    EXPECT_EQ(hC.GetBinContent(i + 1), 2);
+    EXPECT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_EQ(hC.GetBinContent(i), 2);
   }
 }
 
@@ -90,9 +90,9 @@ TEST(LongLongRegular1D, AddAtomic) {
   hA.AddAtomic(hB);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_EQ(hA.GetBinContent(i + 1), 2);
-    EXPECT_EQ(hB.GetBinContent(i + 1), 1);
-    EXPECT_EQ(hC.GetBinContent(i + 1), 2);
+    EXPECT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_EQ(hC.GetBinContent(i), 2);
   }
 }
 
@@ -158,9 +158,9 @@ TEST(FloatRegular1D, AddAtomic) {
   hA.AddAtomic(hB);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(hA.GetBinContent(i + 1), 2);
-    EXPECT_FLOAT_EQ(hB.GetBinContent(i + 1), 1);
-    EXPECT_FLOAT_EQ(hC.GetBinContent(i + 1), 2);
+    EXPECT_FLOAT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_FLOAT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_FLOAT_EQ(hC.GetBinContent(i), 2);
   }
 }
 
@@ -218,7 +218,7 @@ TEST(FloatRegular1D, FillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -231,7 +231,7 @@ TEST(FloatRegular1D, FillAtomicTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -244,7 +244,7 @@ TEST(FloatRegular1D, TemplatedFillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -265,9 +265,9 @@ TEST(DoubleRegular1D, AddAtomic) {
   hA.AddAtomic(hB);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(hA.GetBinContent(i + 1), 2);
-    EXPECT_FLOAT_EQ(hB.GetBinContent(i + 1), 1);
-    EXPECT_FLOAT_EQ(hC.GetBinContent(i + 1), 2);
+    EXPECT_FLOAT_EQ(hA.GetBinContent(i), 2);
+    EXPECT_FLOAT_EQ(hB.GetBinContent(i), 1);
+    EXPECT_FLOAT_EQ(hC.GetBinContent(i), 2);
   }
 }
 
@@ -325,7 +325,7 @@ TEST(DoubleRegular1D, FillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -338,7 +338,7 @@ TEST(DoubleRegular1D, FillAtomicTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -351,7 +351,7 @@ TEST(DoubleRegular1D, TemplatedFillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    EXPECT_FLOAT_EQ(h1.GetBinContent(i + 1), 0.5 + i * 0.1);
+    EXPECT_FLOAT_EQ(h1.GetBinContent(i), 0.5 + i * 0.1);
   }
 }
 
@@ -375,15 +375,15 @@ TEST(DoubleBinWithErrorRegular1D, AddAtomic) {
     double weightA = 0.5 + i * 0.1;
     double weightB = 1.5 + i * 0.2;
     double weightAB2 = weightA * weightA + weightB * weightB;
-    EPHist::DoubleBinWithError binWithError = hA.GetBinContent(i + 1);
+    EPHist::DoubleBinWithError binWithError = hA.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, weightA + weightB);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weightAB2);
 
-    binWithError = hB.GetBinContent(i + 1);
+    binWithError = hB.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, weightB);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weightB * weightB);
 
-    binWithError = hC.GetBinContent(i + 1);
+    binWithError = hC.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, weightA + weightB);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weightAB2);
   }
@@ -398,7 +398,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomic) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, 1);
     EXPECT_FLOAT_EQ(binWithError.fSum2, 1);
   }
@@ -413,7 +413,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomicTuple) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, 1);
     EXPECT_FLOAT_EQ(binWithError.fSum2, 1);
   }
@@ -428,7 +428,7 @@ TEST(DoubleBinWithErrorRegular1D, TemplatedFillAtomic) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     EXPECT_FLOAT_EQ(binWithError.fSum, 1);
     EXPECT_FLOAT_EQ(binWithError.fSum2, 1);
   }
@@ -443,7 +443,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -459,7 +459,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomicTupleWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
@@ -475,7 +475,7 @@ TEST(DoubleBinWithErrorRegular1D, TemplatedFillAtomicWeight) {
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
-    auto &binWithError = h1.GetBinContent(i + 1);
+    auto &binWithError = h1.GetBinContent(i);
     double weight = 0.5 + i * 0.1;
     EXPECT_FLOAT_EQ(binWithError.fSum, weight);
     EXPECT_FLOAT_EQ(binWithError.fSum2, weight * weight);
