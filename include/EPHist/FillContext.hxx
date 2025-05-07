@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <memory>
+#include <stdexcept>
 #include <tuple>
 
 namespace EPHist {

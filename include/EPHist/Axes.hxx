@@ -8,7 +8,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
 #include <tuple>
+#include <utility>
 #include <variant>
 #include <vector>
 

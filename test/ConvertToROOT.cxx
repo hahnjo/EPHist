@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 
+#include <stdexcept>
+
 TEST(ConvertToTH1I, IntRegular1D) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);

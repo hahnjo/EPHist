@@ -8,6 +8,7 @@
 #include <gtest/gtest.h>
 
 #include <sstream>
+#include <stdexcept>
 
 TEST(ExportTextData, IntRegular1D) {
   // Attempt to reproduce the example given in the PGFPlots manual:
