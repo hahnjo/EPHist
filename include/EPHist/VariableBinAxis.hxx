@@ -44,14 +44,14 @@ public:
 
     // FIXME: Optimize with binary search...
     assert(x >= fBins.front());
-    for (std::size_t bin = 0; bin < fBins.size() - 1; bin++) {
+    for (std::size_t bin = 0; bin < fBins.size() - 2; bin++) {
       if (x < fBins[bin + 1]) {
         return {bin, true};
       }
     }
     assert(x < fBins.back());
-    std::size_t bin = fBins.size() - 1;
-    return {bin, fEnableUnderflowOverflowBins};
+    std::size_t bin = fBins.size() - 2;
+    return {bin, true};
   }
 
   friend bool operator==(const VariableBinAxis &lhs,
