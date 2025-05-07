@@ -10,7 +10,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <memory>
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
@@ -19,15 +18,13 @@
 namespace EPHist {
 
 template <typename T> class EPHist final {
-  std::unique_ptr<T[]> fData;
-  std::size_t fTotalNumBins;
+  std::vector<T> fData;
 
   Detail::Axes fAxes;
 
 public:
   explicit EPHist(const std::vector<AxisVariant> &axes) : fAxes(axes) {
-    fTotalNumBins = fAxes.ComputeTotalNumBins();
-    fData.reset(new T[fTotalNumBins]{});
+    fData.resize(fAxes.ComputeTotalNumBins());
   }
 
   EPHist(std::size_t numBins, double low, double high)
@@ -49,7 +46,7 @@ public:
     if (fAxes != other.fAxes) {
       throw std::invalid_argument("axes configuration not identical");
     }
-    for (std::size_t i = 0; i < fTotalNumBins; i++) {
+    for (std::size_t i = 0; i < fData.size(); i++) {
       fData[i] += other.fData[i];
     }
   }
@@ -58,30 +55,30 @@ public:
     if (fAxes != other.fAxes) {
       throw std::invalid_argument("axes configuration not identical");
     }
-    for (std::size_t i = 0; i < fTotalNumBins; i++) {
+    for (std::size_t i = 0; i < fData.size(); i++) {
       Internal::AtomicAdd(&fData[i], other.fData[i]);
     }
   }
 
   void Clear() {
-    for (std::size_t i = 0; i < fTotalNumBins; i++) {
+    for (std::size_t i = 0; i < fData.size(); i++) {
       fData[i] = {};
     }
   }
 
   EPHist<T> Clone() {
     EPHist<T> h(fAxes.GetVector());
-    for (std::size_t i = 0; i < fTotalNumBins; i++) {
+    for (std::size_t i = 0; i < fData.size(); i++) {
       h.fData[i] += fData[i];
     }
     return h;
   }
 
   const T &GetBinContent(std::size_t bin) const {
-    assert(bin >= 0 && bin < fTotalNumBins);
+    assert(bin >= 0 && bin < fData.size());
     return fData[bin];
   }
-  std::size_t GetTotalNumBins() const { return fTotalNumBins; }
+  std::size_t GetTotalNumBins() const { return fData.size(); }
 
   const std::vector<AxisVariant> &GetAxes() const { return fAxes.GetVector(); }
   std::size_t GetNumDimensions() const { return fAxes.GetNumDimensions(); }
