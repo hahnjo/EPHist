@@ -30,8 +30,8 @@ std::unique_ptr<Hist> ConvertToTH1(const EPHist::EPHist<T> &h) {
                  std::get_if<EPHist::VariableBinAxis>(&axes[0])) {
     enableUnderflowOverflowBins = variable->AreUnderflowOverflowBinsEnabled();
     numBins = variable->GetNumBins();
-    const auto &bins = variable->GetBins();
-    out.reset(new Hist("", "", numBins, bins.data()));
+    const auto &binEdges = variable->GetBinEdges();
+    out.reset(new Hist("", "", numBins, binEdges.data()));
   }
 
   if (enableUnderflowOverflowBins) {

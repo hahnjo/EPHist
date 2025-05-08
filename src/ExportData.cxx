@@ -16,22 +16,22 @@ void EPHist::Util::ExportTextData(const EPHistForExport &h, std::ostream &os) {
   }
 
   const auto &axes = h.GetAxes();
-  std::vector<double> bins;
+  std::vector<double> binEdges;
   if (const auto *regular = std::get_if<RegularAxis>(&axes[0])) {
     for (std::size_t i = 0; i < regular->GetNumBins(); i++) {
-      bins.push_back(regular->ComputeLowEdge(i));
+      binEdges.push_back(regular->ComputeLowEdge(i));
     }
-    bins.push_back(regular->GetHigh());
+    binEdges.push_back(regular->GetHigh());
   } else if (const auto *variable = std::get_if<VariableBinAxis>(&axes[0])) {
-    bins = variable->GetBins();
+    binEdges = variable->GetBinEdges();
   }
 
-  for (std::size_t i = 0; i < bins.size() - 1; i++) {
-    os << bins[i] << " ";
+  for (std::size_t i = 0; i < binEdges.size() - 1; i++) {
+    os << binEdges[i] << " ";
     h.PrintBinContent(i, os);
     os << "\n";
   }
-  os << bins.back() << " ";
-  h.PrintBinContent(bins.size() - 2, os);
+  os << binEdges.back() << " ";
+  h.PrintBinContent(binEdges.size() - 2, os);
   os << "\n";
 }
