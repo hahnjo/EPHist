@@ -12,6 +12,10 @@ add_executable(test_atomic atomic.cxx)
 target_link_libraries(test_atomic EPHist GTest::Main)
 add_test(NAME atomic COMMAND test_atomic)
 
+add_executable(test_axes axes.cxx)
+target_link_libraries(test_axes EPHist GTest::Main)
+add_test(NAME axes COMMAND test_axes)
+
 add_executable(test_basic basic.cxx)
 target_link_libraries(test_basic EPHist GTest::Main)
 add_test(NAME basic COMMAND test_basic)

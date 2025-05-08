@@ -21,19 +21,10 @@ TEST(Basic, MixedAxisTypes) {
 
   EPHist::EPHist<int> h({regularAxis, variableBinAxis, regularAxis});
   EXPECT_EQ(h.GetNumDimensions(), 3);
-  const auto &axes = h.GetAxes();
-  ASSERT_EQ(axes.size(), 3);
-  EXPECT_EQ(axes[0].index(), 0);
-  EXPECT_EQ(axes[1].index(), 1);
-  EXPECT_EQ(axes[2].index(), 0);
-  ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&axes[0]) != nullptr);
-  ASSERT_TRUE(std::get_if<EPHist::VariableBinAxis>(&axes[1]) != nullptr);
-  ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&axes[2]) != nullptr);
 
   std::vector<EPHist::AxisVariant> newAxes{variableBinAxis, regularAxis};
   h = EPHist::EPHist<int>(newAxes);
   ASSERT_EQ(h.GetNumDimensions(), 2);
-  ASSERT_EQ(axes.size(), 2);
 
   h.Fill(1, 2);
   h.Fill(std::make_tuple(1, 2));
