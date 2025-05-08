@@ -63,19 +63,20 @@ TEST(RegularAxis, ComputeBin) {
   static constexpr double UnderflowSmall = -0.1;
   for (double underflow : {NegativeInfinity, UnderflowLarge, UnderflowSmall}) {
     auto axisBin = axis.ComputeBin(underflow);
-    EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, Bins);
+    EXPECT_TRUE(axisBin.second);
     axisBin = axisNoUnderflowOverflow.ComputeBin(underflow);
+    EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     auto axisBin = axis.ComputeBin(i + 0.5);
-    EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, i);
+    EXPECT_TRUE(axisBin.second);
     axisBin = axisNoUnderflowOverflow.ComputeBin(i + 0.5);
-    EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, i);
+    EXPECT_TRUE(axisBin.second);
   }
 
   // Overflow
@@ -87,9 +88,10 @@ TEST(RegularAxis, ComputeBin) {
   for (double overflow :
        {PositiveInfinity, NaN, OverflowLarge, OverflowSmall}) {
     auto axisBin = axis.ComputeBin(overflow);
-    EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, Bins + 1);
+    EXPECT_TRUE(axisBin.second);
     axisBin = axisNoUnderflowOverflow.ComputeBin(overflow);
+    EXPECT_EQ(axisBin.first, Bins + 1);
     EXPECT_FALSE(axisBin.second);
   }
 }
