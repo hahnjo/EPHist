@@ -6,6 +6,8 @@
 
 #include <gtest/gtest.h>
 
+#include <tuple>
+
 TEST(Axes, MixedTypes) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis regularAxis(Bins, 0, Bins);
@@ -31,4 +33,20 @@ TEST(Axes, MixedTypes) {
   axes = EPHist::Detail::Axes(newAxes);
   ASSERT_EQ(axes.GetNumDimensions(), 2);
   ASSERT_EQ(v.size(), 2);
+}
+
+TEST(Axes, ComputeBin) {
+  static constexpr std::size_t BinsX = 20;
+  EPHist::RegularAxis axisX(BinsX, 0, BinsX);
+  static constexpr std::size_t BinsY = 30;
+  EPHist::RegularAxis axisY(BinsY, 0, BinsY);
+  EPHist::Detail::Axes axes({axisX, axisY});
+
+  auto axisBin = axes.ComputeBin(std::make_tuple(1, 2));
+  EXPECT_EQ(axisBin.first, (BinsY + 2) + 2);
+  EXPECT_TRUE(axisBin.second);
+
+  axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(2, 3);
+  EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) + 3);
+  EXPECT_TRUE(axisBin.second);
 }
