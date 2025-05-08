@@ -141,6 +141,41 @@ TEST(Basic, Clone) {
   }
 }
 
+TEST(Basic, GetBinContentAtInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(h1.GetBinContentAt(1));
+  EXPECT_THROW(h1.GetBinContentAt(1, 2), std::invalid_argument);
+
+  EXPECT_THROW(h2.GetBinContentAt(1), std::invalid_argument);
+  EXPECT_NO_THROW(h2.GetBinContentAt(1, 2));
+  EXPECT_THROW(h2.GetBinContentAt(1, 2, 3), std::invalid_argument);
+}
+
+TEST(Basic, GetBinContentAtArrayInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  std::array<EPHist::BinIndex, 1> a1 = {1};
+  std::array<EPHist::BinIndex, 2> a2 = {1, 2};
+  std::array<EPHist::BinIndex, 3> a3 = {1, 2, 3};
+  EXPECT_NO_THROW(h1.GetBinContentAt(a1));
+  EXPECT_THROW(h1.GetBinContentAt(a2), std::invalid_argument);
+
+  EXPECT_THROW(h2.GetBinContentAt(a1), std::invalid_argument);
+  EXPECT_NO_THROW(h2.GetBinContentAt(a2));
+  EXPECT_THROW(h2.GetBinContentAt(a3), std::invalid_argument);
+}
+
 TEST(Basic, FillInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

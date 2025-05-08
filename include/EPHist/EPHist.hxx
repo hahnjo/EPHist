@@ -5,9 +5,11 @@
 
 #include "Atomic.hxx"
 #include "Axes.hxx"
+#include "BinIndex.hxx"
 #include "DoubleBinWithError.hxx"
 #include "Weight.hxx"
 
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <stdexcept>
@@ -77,6 +79,26 @@ public:
   const T &GetBinContent(std::size_t bin) const {
     assert(bin >= 0 && bin < fData.size());
     return fData[bin];
+  }
+  template <std::size_t N>
+  const T &GetBinContentAt(const std::array<BinIndex, N> &args) const {
+    if (N != fAxes.GetNumDimensions()) {
+      throw std::invalid_argument(
+          "invalid number of arguments to GetBinContent");
+    }
+    auto bin = fAxes.ComputeBin(args);
+    if (!bin.second) {
+      throw std::invalid_argument("bin not found");
+    }
+    return fData[bin.first];
+  }
+  template <typename... A> const T &GetBinContentAt(const A &...args) const {
+    if (sizeof...(A) != fAxes.GetNumDimensions()) {
+      throw std::invalid_argument(
+          "invalid number of arguments to GetBinContent");
+    }
+    std::array<BinIndex, sizeof...(A)> a{args...};
+    return GetBinContentAt(a);
   }
   std::size_t GetTotalNumBins() const { return fData.size(); }
 
