@@ -3,6 +3,8 @@
 #ifndef EPHIST_VARIABLEBINAXIS
 #define EPHIST_VARIABLEBINAXIS
 
+#include "BinIndex.hxx"
+
 #include <cassert>
 #include <cstddef>
 #include <utility>
@@ -33,6 +35,17 @@ public:
   double GetBinEdge(std::size_t bin) const { return fBinEdges[bin]; }
   bool AreUnderflowOverflowBinsEnabled() const {
     return fEnableUnderflowOverflowBins;
+  }
+
+  std::pair<std::size_t, bool> GetBin(BinIndex index) const {
+    if (index.IsUnderflow()) {
+      return {fBinEdges.size() - 1, fEnableUnderflowOverflowBins};
+    } else if (index.IsOverflow()) {
+      return {fBinEdges.size(), fEnableUnderflowOverflowBins};
+    }
+    assert(index.IsNormal());
+    std::size_t bin = index.GetIndex();
+    return {bin, bin < fBinEdges.size() - 1};
   }
 
   std::pair<std::size_t, bool> ComputeBin(double x) const {

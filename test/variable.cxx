@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <EPHist/BinIndex.hxx>
 #include <EPHist/EPHist.hxx>
 #include <EPHist/VariableBinAxis.hxx>
 
@@ -60,6 +61,57 @@ TEST(VariableBinAxis, Equality) {
   EXPECT_FALSE(axisA == axisB);
   EXPECT_FALSE(axisA == axisC);
   EXPECT_FALSE(axisB == axisC);
+}
+
+TEST(VariableBinAxis, GetBin) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+
+  EPHist::VariableBinAxis axis(bins);
+  EPHist::VariableBinAxis axisNoUnderflowOverflow(
+      bins, /*enableUnderflowOverflowBins=*/false);
+
+  {
+    auto underflow = EPHist::BinIndex::Underflow();
+    auto axisBin = axis.GetBin(underflow);
+    EXPECT_EQ(axisBin.first, Bins);
+    EXPECT_TRUE(axisBin.second);
+    axisBin = axisNoUnderflowOverflow.GetBin(underflow);
+    EXPECT_EQ(axisBin.first, Bins);
+    EXPECT_FALSE(axisBin.second);
+  }
+
+  for (std::size_t i = 0; i < Bins; i++) {
+    auto axisBin = axis.GetBin(i);
+    EXPECT_EQ(axisBin.first, i);
+    EXPECT_TRUE(axisBin.second);
+    axisBin = axisNoUnderflowOverflow.GetBin(i);
+    EXPECT_EQ(axisBin.first, i);
+    EXPECT_TRUE(axisBin.second);
+  }
+
+  // Out of bounds
+  {
+    auto axisBin = axis.GetBin(Bins);
+    EXPECT_EQ(axisBin.first, Bins);
+    EXPECT_FALSE(axisBin.second);
+    axisBin = axisNoUnderflowOverflow.GetBin(Bins);
+    EXPECT_EQ(axisBin.first, Bins);
+    EXPECT_FALSE(axisBin.second);
+  }
+
+  {
+    auto overflow = EPHist::BinIndex::Overflow();
+    auto axisBin = axis.GetBin(overflow);
+    EXPECT_TRUE(axisBin.second);
+    EXPECT_EQ(axisBin.first, Bins + 1);
+    axisBin = axisNoUnderflowOverflow.GetBin(overflow);
+    EXPECT_FALSE(axisBin.second);
+  }
 }
 
 TEST(VariableBinAxis, ComputeBin) {

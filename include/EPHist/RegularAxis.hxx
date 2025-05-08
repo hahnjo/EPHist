@@ -3,6 +3,8 @@
 #ifndef EPHIST_REGULARAXIS
 #define EPHIST_REGULARAXIS
 
+#include "BinIndex.hxx"
+
 #include <cassert>
 #include <cstddef>
 #include <utility>
@@ -41,6 +43,17 @@ public:
   double ComputeLowEdge(std::size_t bin) const {
     assert(0 <= bin && bin < fNumBins);
     return fLow + bin * (fHigh - fLow) / fNumBins;
+  }
+
+  std::pair<std::size_t, bool> GetBin(BinIndex index) const {
+    if (index.IsUnderflow()) {
+      return {fNumBins, fEnableUnderflowOverflowBins};
+    } else if (index.IsOverflow()) {
+      return {fNumBins + 1, fEnableUnderflowOverflowBins};
+    }
+    assert(index.IsNormal());
+    std::size_t bin = index.GetIndex();
+    return {bin, bin < fNumBins};
   }
 
   std::pair<std::size_t, bool> ComputeBin(double x) const {
