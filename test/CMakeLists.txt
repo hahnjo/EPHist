@@ -20,6 +20,10 @@ add_executable(test_basic basic.cxx)
 target_link_libraries(test_basic EPHist GTest::Main)
 add_test(NAME basic COMMAND test_basic)
 
+add_executable(test_index index.cxx)
+target_link_libraries(test_index EPHist GTest::Main)
+add_test(NAME index COMMAND test_index)
+
 add_executable(test_parallel parallel.cxx)
 target_link_libraries(test_parallel EPHist GTest::Main)
 add_test(NAME parallel COMMAND test_parallel)

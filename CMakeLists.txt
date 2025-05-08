@@ -19,6 +19,7 @@ install(TARGETS EPHist EXPORT ${PROJECT_NAME}Targets)
 install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Atomic.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Axes.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/BinIndex.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/DoubleBinWithError.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/EPHist.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/FillContext.hxx
