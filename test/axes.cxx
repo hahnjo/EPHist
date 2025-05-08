@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 
+#include <stdexcept>
 #include <tuple>
 
 TEST(Axes, MixedTypes) {
@@ -49,4 +50,72 @@ TEST(Axes, ComputeBin) {
   axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(2, 3);
   EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) + 3);
   EXPECT_TRUE(axisBin.second);
+}
+
+TEST(Axes, ComputeBinInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Detail::Axes axes1({axis});
+  ASSERT_EQ(axes1.GetNumDimensions(), 1);
+  EPHist::Detail::Axes axes2({axis, axis});
+  ASSERT_EQ(axes2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(axes1.ComputeBin(std::make_tuple(1)));
+  EXPECT_THROW(axes1.ComputeBin(std::make_tuple(1, 2)), std::invalid_argument);
+
+  EXPECT_THROW(axes2.ComputeBin(std::make_tuple(1)), std::invalid_argument);
+  EXPECT_NO_THROW(axes2.ComputeBin(std::make_tuple(1, 2)));
+  EXPECT_THROW(axes2.ComputeBin(std::make_tuple(1, 2, 3)),
+               std::invalid_argument);
+}
+
+TEST(Axes, TemplatedComputeBinInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Detail::Axes axes1({axis});
+  ASSERT_EQ(axes1.GetNumDimensions(), 1);
+  EPHist::Detail::Axes axes2({axis, axis});
+  ASSERT_EQ(axes2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(axes1.ComputeBin<EPHist::RegularAxis>(1));
+  EXPECT_THROW(
+      (axes1.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)),
+      std::invalid_argument);
+
+  EXPECT_THROW(axes2.ComputeBin<EPHist::RegularAxis>(1), std::invalid_argument);
+  EXPECT_NO_THROW(
+      (axes2.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)));
+  EXPECT_THROW((axes2.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis,
+                                 EPHist::RegularAxis>(1, 2, 3)),
+               std::invalid_argument);
+}
+
+TEST(Axes, TemplatedComputeInvalidAxis) {
+  static constexpr std::size_t Bins = 20;
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  EPHist::Detail::Axes axes1({variableBinAxis});
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  EPHist::Detail::Axes axes2({regularAxis, regularAxis});
+
+  EXPECT_THROW((axes1.ComputeBin<EPHist::RegularAxis>(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(axes1.ComputeBin<EPHist::VariableBinAxis>(1));
+
+  EXPECT_NO_THROW(
+      (axes2.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)));
+  EXPECT_THROW(
+      (axes2.ComputeBin<EPHist::RegularAxis, EPHist::VariableBinAxis>(1, 2)),
+      std::invalid_argument);
+  EXPECT_THROW(
+      (axes2.ComputeBin<EPHist::VariableBinAxis, EPHist::RegularAxis>(1, 2)),
+      std::invalid_argument);
+  EXPECT_THROW(
+      (axes2.ComputeBin<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(1,
+                                                                          2)),
+      std::invalid_argument);
 }

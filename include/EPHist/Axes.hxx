@@ -106,12 +106,18 @@ private:
 public:
   template <typename... A>
   std::pair<std::size_t, bool> ComputeBin(const std::tuple<A...> &args) const {
+    if (sizeof...(A) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to ComputeBin");
+    }
     return ComputeBin<0>(0, args);
   }
 
   template <class... Axes>
   std::pair<std::size_t, bool>
   ComputeBin(const typename Axes::ArgumentType &...args) const {
+    if (sizeof...(Axes) != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to ComputeBin");
+    }
     return ComputeBin<0, Axes...>(0, args...);
   }
 
