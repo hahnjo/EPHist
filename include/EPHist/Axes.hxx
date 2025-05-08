@@ -3,9 +3,11 @@
 #ifndef EPHIST_AXES
 #define EPHIST_AXES
 
+#include "BinIndex.hxx"
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
@@ -119,6 +121,39 @@ public:
       throw std::invalid_argument("invalid number of arguments to ComputeBin");
     }
     return ComputeBin<0, Axes...>(0, args...);
+  }
+
+  template <std::size_t N>
+  std::pair<std::size_t, bool>
+  ComputeBin(const std::array<BinIndex, N> &args) const {
+    if (N != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to ComputeBin");
+    }
+    std::size_t bin = 0;
+    for (std::size_t i = 0; i < N; i++) {
+      const auto &index = args[i];
+      const auto &axis = fAxes[i];
+      std::pair<std::size_t, bool> axisBin;
+      switch (axis.index()) {
+      case Internal::AxisVariantIndex<RegularAxis>::value: {
+        const auto *regular = std::get_if<RegularAxis>(&axis);
+        bin *= regular->GetTotalNumBins();
+        axisBin = regular->GetBin(index);
+        break;
+      }
+      case Internal::AxisVariantIndex<VariableBinAxis>::value: {
+        const auto *variable = std::get_if<VariableBinAxis>(&axis);
+        bin *= variable->GetTotalNumBins();
+        axisBin = variable->GetBin(index);
+        break;
+      }
+      }
+      if (!axisBin.second) {
+        return {0, false};
+      }
+      bin += axisBin.first;
+    }
+    return {bin, true};
   }
 
   friend bool operator==(const Axes &lhs, const Axes &rhs) {

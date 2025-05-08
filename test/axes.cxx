@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <EPHist/Axes.hxx>
+#include <EPHist/BinIndex.hxx>
 #include <EPHist/RegularAxis.hxx>
 #include <EPHist/VariableBinAxis.hxx>
 
@@ -49,6 +50,11 @@ TEST(Axes, ComputeBin) {
 
   axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(2, 3);
   EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) + 3);
+  EXPECT_TRUE(axisBin.second);
+
+  std::array<EPHist::BinIndex, 2> args = {4, 5};
+  axisBin = axes.ComputeBin(args);
+  EXPECT_EQ(axisBin.first, 4 * (BinsY + 2) + 5);
   EXPECT_TRUE(axisBin.second);
 }
 
