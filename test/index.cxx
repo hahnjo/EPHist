@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <EPHist/BinIndex.hxx>
+#include <EPHist/BinIndexRange.hxx>
 
 #include <gtest/gtest.h>
+
+#include <iterator>
+#include <stdexcept>
+#include <vector>
 
 TEST(BinIndex, Constructor) {
   EPHist::BinIndex invalid;
@@ -122,4 +127,70 @@ TEST(BinIndex, Relation) {
   EXPECT_FALSE(underflow <= overflow);
   EXPECT_FALSE(underflow > overflow);
   EXPECT_FALSE(underflow >= overflow);
+}
+
+TEST(BinIndexRange, Constructor) {
+  const EPHist::BinIndexRange invalid;
+  EXPECT_TRUE(invalid.GetBegin().IsInvalid());
+  EXPECT_TRUE(invalid.GetEnd().IsInvalid());
+
+  const auto index0 = EPHist::BinIndex(0);
+  const auto range0 = EPHist::BinIndexRange(index0, index0);
+  EXPECT_EQ(range0.GetBegin(), index0);
+  EXPECT_EQ(range0.GetEnd(), index0);
+
+  const auto range01 = EPHist::BinIndexRange(index0, EPHist::BinIndex(1));
+  EXPECT_EQ(range01.GetBegin(), index0);
+  EXPECT_EQ(range01.GetEnd(), EPHist::BinIndex(1));
+
+  // Swapped begin and end
+  EXPECT_THROW(EPHist::BinIndexRange(EPHist::BinIndex(1), index0),
+               std::invalid_argument);
+
+  const auto underflow = EPHist::BinIndex::Underflow();
+  const auto overflow = EPHist::BinIndex::Overflow();
+  EXPECT_THROW(EPHist::BinIndexRange(underflow, index0), std::invalid_argument);
+  EXPECT_THROW(EPHist::BinIndexRange(overflow, index0), std::invalid_argument);
+  EXPECT_THROW(EPHist::BinIndexRange(index0, underflow), std::invalid_argument);
+  EXPECT_THROW(EPHist::BinIndexRange(index0, overflow), std::invalid_argument);
+}
+
+TEST(BinIndexRange, Empty) {
+  const auto index0 = EPHist::BinIndex(0);
+  const auto empty = EPHist::BinIndexRange(index0, index0);
+  EXPECT_EQ(empty.begin(), empty.end());
+  EXPECT_EQ(std::distance(empty.begin(), empty.end()), 0);
+
+  EXPECT_FALSE(empty.IsFull());
+  EXPECT_EQ(empty.GetNormalRange(), empty);
+}
+
+TEST(BinIndexRange, Normal) {
+  const auto index0 = EPHist::BinIndex(0);
+  const auto range01 = EPHist::BinIndexRange(index0, EPHist::BinIndex(1));
+  EXPECT_EQ(std::distance(range01.begin(), range01.end()), 1);
+  auto range01It = range01.begin();
+  EXPECT_EQ(*range01It, index0);
+  range01It++;
+  EXPECT_EQ(range01It, range01.end());
+
+  EXPECT_FALSE(range01.IsFull());
+  EXPECT_EQ(range01.GetNormalRange(), range01);
+}
+
+TEST(BinIndexRange, Full) {
+  const auto full = EPHist::BinIndexRange::Full(/*numBins*/ 10);
+  EXPECT_EQ(full.GetBegin(), EPHist::BinIndex::Underflow());
+  EXPECT_EQ(full.GetEnd(), EPHist::BinIndex());
+  EXPECT_EQ(std::distance(full.begin(), full.end()), 12);
+
+  const std::vector binIndexes(full.begin(), full.end());
+  ASSERT_EQ(binIndexes.size(), 12);
+  EXPECT_TRUE(binIndexes.front().IsUnderflow());
+  EXPECT_TRUE(binIndexes.back().IsOverflow());
+
+  EXPECT_TRUE(full.IsFull());
+  const auto normal = full.GetNormalRange();
+  EXPECT_EQ(normal.GetBegin(), EPHist::BinIndex(0));
+  EXPECT_EQ(normal.GetEnd(), EPHist::BinIndex(10));
 }
