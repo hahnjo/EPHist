@@ -31,7 +31,7 @@ template <> struct AxisVariantIndex<VariableBinAxis> {
 
 namespace Detail {
 
-class Axes {
+class Axes final {
   std::vector<AxisVariant> fAxes;
 
 public:
