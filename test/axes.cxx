@@ -2,11 +2,13 @@
 
 #include <EPHist/Axes.hxx>
 #include <EPHist/BinIndex.hxx>
+#include <EPHist/BinIndexRange.hxx>
 #include <EPHist/RegularAxis.hxx>
 #include <EPHist/VariableBinAxis.hxx>
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <stdexcept>
 #include <tuple>
 
@@ -128,4 +130,58 @@ TEST(Axes, TemplatedComputeInvalidAxis) {
       (axes2.ComputeBin<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(1,
                                                                           2)),
       std::invalid_argument);
+}
+
+TEST(Axes, Slice) {
+  static constexpr std::size_t Bins = 20;
+  const EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  const EPHist::VariableBinAxis variableBinAxis(bins);
+
+  const EPHist::Detail::Axes axes({regularAxis, variableBinAxis});
+  std::array<EPHist::BinIndexRange, 2> ranges{EPHist::BinIndexRange(2, 12),
+                                              EPHist::BinIndexRange(8, 15)};
+  const auto sliced = axes.Slice(ranges);
+  ASSERT_EQ(sliced.size(), 2);
+  {
+    const auto *slicedAxis = std::get_if<EPHist::RegularAxis>(&sliced[0]);
+    ASSERT_TRUE(slicedAxis != nullptr);
+    EXPECT_TRUE(slicedAxis->AreUnderflowOverflowBinsEnabled());
+    EXPECT_EQ(slicedAxis->GetNumBins(), 10);
+    EXPECT_FLOAT_EQ(slicedAxis->GetLow(), 2);
+    EXPECT_FLOAT_EQ(slicedAxis->GetHigh(), 12);
+  }
+  {
+    const auto *slicedAxis = std::get_if<EPHist::VariableBinAxis>(&sliced[1]);
+    ASSERT_TRUE(slicedAxis != nullptr);
+    EXPECT_TRUE(slicedAxis->AreUnderflowOverflowBinsEnabled());
+    ASSERT_EQ(slicedAxis->GetNumBins(), 7);
+    EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(0), 8);
+    EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(7), 15);
+  }
+}
+
+TEST(Axes, SliceInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Detail::Axes axes1({axis});
+  ASSERT_EQ(axes1.GetNumDimensions(), 1);
+  EPHist::Detail::Axes axes2({axis, axis});
+  ASSERT_EQ(axes2.GetNumDimensions(), 2);
+
+  EPHist::BinIndexRange range(5, 10);
+  std::array<EPHist::BinIndexRange, 1> ranges1{range};
+  std::array<EPHist::BinIndexRange, 2> ranges2{range, range};
+  std::array<EPHist::BinIndexRange, 3> ranges3{range, range, range};
+
+  EXPECT_NO_THROW(axes1.Slice(ranges1));
+  EXPECT_THROW(axes1.Slice(ranges2), std::invalid_argument);
+
+  EXPECT_THROW(axes2.Slice(ranges1), std::invalid_argument);
+  EXPECT_NO_THROW(axes2.Slice(ranges2));
+  EXPECT_THROW(axes2.Slice(ranges3), std::invalid_argument);
 }

@@ -4,6 +4,7 @@
 #define EPHIST_AXES
 
 #include "BinIndex.hxx"
+#include "BinIndexRange.hxx"
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
 
@@ -154,6 +155,32 @@ public:
       bin += axisBin.first;
     }
     return {bin, true};
+  }
+
+  template <std::size_t N>
+  std::vector<AxisVariant> Slice(const std::array<BinIndexRange, N> &ranges) const {
+    if (N != fAxes.size()) {
+      throw std::invalid_argument("invalid number of arguments to Slice");
+    }
+    std::vector<AxisVariant> axes;
+    axes.reserve(N);
+    for (std::size_t i = 0; i < N; i++) {
+      const auto &range = ranges[i];
+      const auto &axis = fAxes[i];
+      switch (axis.index()) {
+      case Internal::AxisVariantIndex<RegularAxis>::value: {
+        const auto *regular = std::get_if<RegularAxis>(&axis);
+        axes.push_back(regular->Slice(range));
+        break;
+      }
+      case Internal::AxisVariantIndex<VariableBinAxis>::value: {
+        const auto *variable = std::get_if<VariableBinAxis>(&axis);
+        axes.push_back(variable->Slice(range));
+        break;
+      }
+      }
+    }
+    return axes;
   }
 
   friend bool operator==(const Axes &lhs, const Axes &rhs) {
