@@ -70,6 +70,22 @@ public:
     return {bin, true};
   }
 
+  VariableBinAxis Slice(const BinIndexRange &range) const {
+    const auto normalRange = range.GetNormalRange(fBinEdges.size() - 1);
+
+    const auto begin = normalRange.GetBegin();
+    const auto end = normalRange.GetEnd();
+    assert(begin.IsNormal());
+    assert(end.IsNormal());
+    assert(begin <= end);
+
+    std::vector binEdges(fBinEdges.begin() + begin.GetIndex(),
+                         fBinEdges.begin() + end.GetIndex() + 1);
+    // Always enable underflow and overflow bins.
+    const auto enableUnderflowOverflowBins = true;
+    return VariableBinAxis(binEdges, enableUnderflowOverflowBins);
+  }
+
   friend bool operator==(const VariableBinAxis &lhs,
                          const VariableBinAxis &rhs) {
     return lhs.fBinEdges == rhs.fBinEdges &&

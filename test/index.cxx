@@ -193,4 +193,8 @@ TEST(BinIndexRange, Full) {
   const auto normal = full.GetNormalRange();
   EXPECT_EQ(normal.GetBegin(), EPHist::BinIndex(0));
   EXPECT_EQ(normal.GetEnd(), EPHist::BinIndex(10));
+
+  const auto normal20 = full.GetNormalRange(20);
+  EXPECT_EQ(normal20.GetBegin(), EPHist::BinIndex(0));
+  EXPECT_EQ(normal20.GetEnd(), EPHist::BinIndex(20));
 }

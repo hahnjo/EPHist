@@ -84,11 +84,14 @@ public:
   Iterator end() const { return Iterator(fEnd, fNumBins); }
 
   bool IsFull() const { return fBegin.IsUnderflow() && fEnd.IsInvalid(); }
-  BinIndexRange GetNormalRange() const {
+  BinIndexRange GetNormalRange(std::size_t numBins = 0) const {
     if (IsFull()) {
       // If this is the full range, return a new range for all normal bins.
-      assert(fNumBins > 0);
-      return BinIndexRange(0, fNumBins);
+      if (numBins == 0) {
+        numBins = fNumBins;
+      }
+      assert(numBins > 0);
+      return BinIndexRange(0, numBins);
     }
     // Otherwise just return a copy of this range.
     return *this;

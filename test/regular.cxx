@@ -150,6 +150,50 @@ TEST(RegularAxis, ComputeBin) {
   }
 }
 
+TEST(RegularAxis, Slice) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::RegularAxis axisNoUnderflowOverflow(
+      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+
+  const auto full = EPHist::BinIndexRange::Full(Bins);
+  const auto full0 = EPHist::BinIndexRange::Full(0);
+  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+    for (auto &&f : {full, full0}) {
+      const auto slice = a.Slice(f);
+      EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+      EXPECT_EQ(slice.GetNumBins(), Bins);
+      EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
+      EXPECT_FLOAT_EQ(slice.GetLow(), 0);
+      EXPECT_FLOAT_EQ(slice.GetHigh(), Bins);
+    }
+  }
+
+  const auto bin0 = EPHist::BinIndex(0);
+  const auto bin20 = EPHist::BinIndex(Bins);
+  const auto inner = EPHist::BinIndexRange(bin0, bin20);
+  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+    const auto slice = a.Slice(inner);
+    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_EQ(slice.GetNumBins(), Bins);
+    EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
+    EXPECT_FLOAT_EQ(slice.GetLow(), 0);
+    EXPECT_FLOAT_EQ(slice.GetHigh(), Bins);
+  }
+
+  const auto bin5 = EPHist::BinIndex(5);
+  const auto bin15 = EPHist::BinIndex(15);
+  const auto range = EPHist::BinIndexRange(bin5, bin15);
+  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+    const auto slice = a.Slice(range);
+    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_EQ(slice.GetNumBins(), 10);
+    EXPECT_EQ(slice.GetTotalNumBins(), 12);
+    EXPECT_FLOAT_EQ(slice.GetLow(), 5);
+    EXPECT_FLOAT_EQ(slice.GetHigh(), 15);
+  }
+}
+
 TEST(IntRegular1D, Constructor) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);
