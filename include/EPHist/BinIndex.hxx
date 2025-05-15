@@ -9,14 +9,15 @@
 namespace EPHist {
 
 class BinIndex final {
-  static constexpr std::size_t UnderflowIndex = -2;
-  static constexpr std::size_t OverflowIndex = -1;
+  static constexpr std::size_t UnderflowIndex = -3;
+  static constexpr std::size_t OverflowIndex = -2;
+  static constexpr std::size_t InvalidIndex = -1;
 
-  std::size_t fIndex;
-
-  BinIndex() = default;
+  std::size_t fIndex = InvalidIndex;
 
 public:
+  BinIndex() = default;
+
   BinIndex(std::size_t index) : fIndex(index) { assert(IsNormal()); }
 
   BinIndex &operator+=(std::size_t a) {
@@ -76,6 +77,8 @@ public:
       return true;
     } else if (lhs.IsOverflow() && rhs.IsOverflow()) {
       return true;
+    } else if (lhs.IsInvalid() && rhs.IsInvalid()) {
+      return true;
     }
     return false;
   }
@@ -123,6 +126,7 @@ public:
   bool IsNormal() const { return fIndex < UnderflowIndex; }
   bool IsUnderflow() const { return fIndex == UnderflowIndex; }
   bool IsOverflow() const { return fIndex == OverflowIndex; }
+  bool IsInvalid() const { return fIndex == InvalidIndex; }
 
   static BinIndex Underflow() {
     BinIndex underflow;

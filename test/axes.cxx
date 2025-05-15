@@ -56,6 +56,10 @@ TEST(Axes, ComputeBin) {
   axisBin = axes.ComputeBin(args);
   EXPECT_EQ(axisBin.first, 4 * (BinsY + 2) + 5);
   EXPECT_TRUE(axisBin.second);
+
+  args[1] = EPHist::BinIndex();
+  axisBin = axes.ComputeBin(args);
+  EXPECT_FALSE(axisBin.second);
 }
 
 TEST(Axes, ComputeBinInvalidNumberOfArguments) {

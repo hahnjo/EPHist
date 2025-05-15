@@ -112,6 +112,14 @@ TEST(VariableBinAxis, GetBin) {
     axisBin = axisNoUnderflowOverflow.GetBin(overflow);
     EXPECT_FALSE(axisBin.second);
   }
+
+  {
+    EPHist::BinIndex invalid;
+    auto axisBin = axis.GetBin(invalid);
+    EXPECT_FALSE(axisBin.second);
+    axisBin = axisNoUnderflowOverflow.GetBin(invalid);
+    EXPECT_FALSE(axisBin.second);
+  }
 }
 
 TEST(VariableBinAxis, ComputeBin) {

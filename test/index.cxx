@@ -5,6 +5,9 @@
 #include <gtest/gtest.h>
 
 TEST(BinIndex, Constructor) {
+  EPHist::BinIndex invalid;
+  EXPECT_TRUE(invalid.IsInvalid());
+
   auto index = EPHist::BinIndex(0);
   EXPECT_TRUE(index.IsNormal());
   EXPECT_EQ(index.GetIndex(), 0);

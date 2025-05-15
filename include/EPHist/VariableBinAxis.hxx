@@ -42,6 +42,8 @@ public:
       return {fBinEdges.size() - 1, fEnableUnderflowOverflowBins};
     } else if (index.IsOverflow()) {
       return {fBinEdges.size(), fEnableUnderflowOverflowBins};
+    } else if (index.IsInvalid()) {
+      return {0, false};
     }
     assert(index.IsNormal());
     std::size_t bin = index.GetIndex();
