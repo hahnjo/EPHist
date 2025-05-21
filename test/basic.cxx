@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+#include <EPHist/BinIndex.hxx>
 #include <EPHist/EPHist.hxx>
 #include <EPHist/RegularAxis.hxx>
 #include <EPHist/VariableBinAxis.hxx>

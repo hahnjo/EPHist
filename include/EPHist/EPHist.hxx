@@ -239,6 +239,123 @@ public:
       Internal::AtomicAddDouble(&fData[bin.first], w.fValue);
     }
   }
+
+  template <std::size_t N>
+  EPHist<T> Slice(const std::array<BinIndexRange, N> &ranges) const {
+    if (N != fAxes.GetNumDimensions()) {
+      throw std::invalid_argument("invalid number of arguments to Slice");
+    }
+
+    // Create the sliced axes.
+    std::vector<AxisVariant> slicedAxes = fAxes.Slice(ranges);
+
+    // Collect full ranges of the original histogram and normalize the full
+    // ranges potentially passed in by the user.
+    std::array<BinIndexRange, N> fullRanges;
+    std::array<BinIndexRange, N> normalRanges;
+    for (std::size_t i = 0; i < N; i++) {
+      const auto &axis = fAxes.GetVector()[i];
+      switch (axis.index()) {
+      case Internal::AxisVariantIndex<RegularAxis>::value: {
+        const auto *regular = std::get_if<RegularAxis>(&axis);
+        const std::size_t numBins = regular->GetNumBins();
+        if (regular->AreUnderflowOverflowBinsEnabled()) {
+          fullRanges[i] = BinIndexRange::Full(numBins);
+        } else {
+          fullRanges[i] = BinIndexRange(0, numBins);
+        }
+        normalRanges[i] = ranges[i].GetNormalRange(numBins);
+        break;
+      }
+      case Internal::AxisVariantIndex<VariableBinAxis>::value: {
+        const auto *variable = std::get_if<VariableBinAxis>(&axis);
+        const std::size_t numBins = variable->GetNumBins();
+        if (variable->AreUnderflowOverflowBinsEnabled()) {
+          fullRanges[i] = BinIndexRange::Full(numBins);
+        } else {
+          fullRanges[i] = BinIndexRange(0, numBins);
+        }
+        normalRanges[i] = ranges[i].GetNormalRange(numBins);
+        break;
+      }
+      }
+    }
+
+    auto getSliceIndex = [&](std::size_t i, BinIndex index) {
+      if (index.IsNormal()) {
+        // Compare the index to normalRanges[i] and map into the underflow or
+        // overflow bin if outside.
+        if (index < normalRanges[i].GetBegin()) {
+          return BinIndex::Underflow();
+        } else if (index >= normalRanges[i].GetEnd()) {
+          return BinIndex::Overflow();
+        }
+
+        // Otherwise adjust the index by the begin index.
+        const auto beginIndex = normalRanges[i].GetBegin().GetIndex();
+        return BinIndex(index.GetIndex() - beginIndex);
+      }
+
+      // All other bins map to themselves, in particular the underflow and
+      // overflow bins.
+      return index;
+    };
+
+    // Create the sliced histogram and copy data.
+    EPHist<T> slice(slicedAxes);
+    std::array<BinIndexRange::Iterator, N> origIndexIterator;
+    std::array<BinIndex, N> origIndexes;
+    std::array<BinIndex, N> sliceIndexes;
+    for (std::size_t i = 0; i < N; i++) {
+      origIndexIterator[i] = fullRanges[i].begin();
+      origIndexes[i] = *origIndexIterator[i];
+      sliceIndexes[i] = getSliceIndex(i, origIndexes[i]);
+    }
+
+    while (true) {
+      const auto origBin = fAxes.ComputeBin(origIndexes);
+      assert(origBin.second);
+      const auto sliceBin = slice.fAxes.ComputeBin(sliceIndexes);
+      assert(sliceBin.second);
+      slice.fData[sliceBin.first] += fData[origBin.first];
+
+      // Advance the indices.
+      bool shouldContinueAdvance = true;
+      for (std::size_t i = 0; i < N; i++) {
+        // TODO: Measure if reverse iteration is faster.
+
+        shouldContinueAdvance = false;
+        // Advance this iterator.
+        origIndexIterator[i]++;
+        // If we reached the end, wrap around.
+        if (origIndexIterator[i] == fullRanges[i].end()) {
+          origIndexIterator[i] = fullRanges[i].begin();
+          shouldContinueAdvance = true;
+        }
+        // Get the index by dereferencing the iterator.
+        origIndexes[i] = *origIndexIterator[i];
+        sliceIndexes[i] = getSliceIndex(i, origIndexes[i]);
+
+        if (!shouldContinueAdvance) {
+          break;
+        }
+      }
+      if (shouldContinueAdvance) {
+        // No more index found to advance, we are done.
+        break;
+      }
+    }
+
+    return slice;
+  }
+
+  template <typename... A> EPHist<T> Slice(const A &...args) const {
+    if (sizeof...(A) != fAxes.GetNumDimensions()) {
+      throw std::invalid_argument("invalid number of arguments to Slice");
+    }
+    std::array<BinIndexRange, sizeof...(A)> ranges{args...};
+    return Slice(ranges);
+  }
 };
 
 } // namespace EPHist

@@ -37,7 +37,7 @@ public:
 
   class Iterator final {
     BinIndex fIndex;
-    std::size_t fNumBins;
+    std::size_t fNumBins = 0;
 
   public:
     using difference_type = std::size_t;
@@ -46,6 +46,7 @@ public:
     using reference = BinIndex &;
     using iterator_category = std::forward_iterator_tag;
 
+    Iterator() = default;
     Iterator(BinIndex index, std::size_t numBins)
         : fIndex(index), fNumBins(numBins) {}
 
