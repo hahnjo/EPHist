@@ -321,8 +321,10 @@ public:
 
       // Advance the indices.
       bool shouldContinueAdvance = true;
-      for (std::size_t i = 0; i < N; i++) {
-        // TODO: Measure if reverse iteration is faster.
+      for (std::size_t j = 0; j < N; j++) {
+        // Reverse iteration order to improve performance by advancing the
+        // innermost index first.
+        const std::size_t i = N - 1 - j;
 
         shouldContinueAdvance = false;
         // Advance this iterator.
