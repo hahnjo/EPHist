@@ -26,6 +26,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/FillContext.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/ParallelFillStrategy.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/ParallelHelper.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Profile.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/TypeTraits.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/VariableBinAxis.hxx

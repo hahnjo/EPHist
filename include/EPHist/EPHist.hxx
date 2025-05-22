@@ -25,6 +25,10 @@ template <typename T> class FillContext;
 template <typename T> class EPHist final {
   friend class FillContext<T>;
 
+public:
+  using BinContentType = T;
+
+private:
   std::vector<T> fData;
 
   Detail::Axes fAxes;

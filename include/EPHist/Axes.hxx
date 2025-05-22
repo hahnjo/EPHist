@@ -20,6 +20,7 @@
 namespace EPHist {
 
 template <typename T> class EPHist;
+template <bool WithError> class Profile;
 
 using AxisVariant = std::variant<RegularAxis, VariableBinAxis>;
 
@@ -38,6 +39,7 @@ namespace Detail {
 
 class Axes final {
   template <typename T> friend class ::EPHist::EPHist;
+  template <bool WithError> friend class ::EPHist::Profile;
 
   std::vector<AxisVariant> fAxes;
 
