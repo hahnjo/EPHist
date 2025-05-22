@@ -29,9 +29,9 @@ struct DoubleBinWithError {
     return *this;
   }
 
-  DoubleBinWithError &operator+=(double value) {
-    fSum += value;
-    fSum2 += value * value;
+  DoubleBinWithError &operator+=(double w) {
+    fSum += w;
+    fSum2 += w * w;
     return *this;
   }
 
@@ -45,9 +45,9 @@ struct DoubleBinWithError {
     Internal::AtomicAdd(&fSum2, rhs.fSum2);
   }
 
-  void AtomicAddDouble(double value) {
-    Internal::AtomicAdd(&fSum, value);
-    Internal::AtomicAdd(&fSum2, value * value);
+  void AtomicAddDouble(double w) {
+    Internal::AtomicAdd(&fSum, w);
+    Internal::AtomicAdd(&fSum2, w * w);
   }
 };
 
