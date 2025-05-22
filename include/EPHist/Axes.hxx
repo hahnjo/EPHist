@@ -19,6 +19,8 @@
 
 namespace EPHist {
 
+template <typename T> class EPHist;
+
 using AxisVariant = std::variant<RegularAxis, VariableBinAxis>;
 
 namespace Internal {
@@ -35,6 +37,8 @@ template <> struct AxisVariantIndex<VariableBinAxis> {
 namespace Detail {
 
 class Axes final {
+  template <typename T> friend class ::EPHist::EPHist;
+
   std::vector<AxisVariant> fAxes;
 
 public:
@@ -56,7 +60,7 @@ public:
   }
 
 private:
-  template <std::size_t I, typename... A>
+  template <std::size_t I, std::size_t N, typename... A>
   std::pair<std::size_t, bool> ComputeBin(std::size_t bin,
                                           const std::tuple<A...> &args) const {
     const auto &axis = fAxes[I];
@@ -79,10 +83,18 @@ private:
       return {0, false};
     }
     bin += axisBin.first;
-    if constexpr (I + 1 < sizeof...(A)) {
-      return ComputeBin<I + 1>(bin, args);
+    if constexpr (I + 1 < N) {
+      return ComputeBin<I + 1, N>(bin, args);
     }
     return {bin, true};
+  }
+
+  // Private function to be used when the tuple has more elements than
+  // this object has dimensions - additional elements are ignored.
+  template <std::size_t N, typename... A>
+  std::pair<std::size_t, bool> ComputeBin(const std::tuple<A...> &args) const {
+    assert(N == fAxes.size());
+    return ComputeBin<0, N>(0, args);
   }
 
   template <std::size_t I, class Axis, class... Axes>
@@ -112,7 +124,7 @@ public:
     if (sizeof...(A) != fAxes.size()) {
       throw std::invalid_argument("invalid number of arguments to ComputeBin");
     }
-    return ComputeBin<0>(0, args);
+    return ComputeBin<0, sizeof...(A)>(0, args);
   }
 
   template <class... Axes>

@@ -13,7 +13,7 @@ TEST(FloatRegular1D, FillWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -26,7 +26,7 @@ TEST(FloatRegular1D, FillTupleWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -39,7 +39,7 @@ TEST(FloatRegular1D, TemplatedFillWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -52,7 +52,7 @@ TEST(DoubleRegular1D, FillWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -65,7 +65,7 @@ TEST(DoubleRegular1D, FillTupleWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -78,7 +78,7 @@ TEST(DoubleRegular1D, TemplatedFillWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -107,8 +107,8 @@ TEST(DoubleBinWithErrorRegular1D, Add) {
   EPHist::EPHist<EPHist::DoubleBinWithError> hB(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    hA.Fill(EPHist::Weight(0.5 + i * 0.1), i);
-    hB.Fill(EPHist::Weight(1.5 + i * 0.2), i);
+    hA.Fill(i, EPHist::Weight(0.5 + i * 0.1));
+    hB.Fill(i, EPHist::Weight(1.5 + i * 0.2));
   }
 
   EPHist::EPHist<EPHist::DoubleBinWithError> hC(Bins, 0, Bins);
@@ -140,7 +140,7 @@ TEST(DoubleBinWithErrorRegular1D, FillWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -156,7 +156,7 @@ TEST(DoubleBinWithErrorRegular1D, FillTupleWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -172,7 +172,7 @@ TEST(DoubleBinWithErrorRegular1D, TemplatedFillWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {

@@ -27,6 +27,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/ParallelFillStrategy.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/ParallelHelper.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/RegularAxis.hxx
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/TypeTraits.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/VariableBinAxis.hxx
     ${CMAKE_CURRENT_SOURCE_DIR}/include/EPHist/Weight.hxx
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/EPHist

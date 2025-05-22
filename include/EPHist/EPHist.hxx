@@ -7,6 +7,7 @@
 #include "Axes.hxx"
 #include "BinIndex.hxx"
 #include "DoubleBinWithError.hxx"
+#include "TypeTraits.hxx"
 #include "Weight.hxx"
 
 #include <array>
@@ -19,7 +20,11 @@
 
 namespace EPHist {
 
+template <typename T> class FillContext;
+
 template <typename T> class EPHist final {
+  friend class FillContext<T>;
+
   std::vector<T> fData;
 
   Detail::Axes fAxes;
@@ -105,6 +110,22 @@ public:
   const std::vector<AxisVariant> &GetAxes() const { return fAxes.GetVector(); }
   std::size_t GetNumDimensions() const { return fAxes.GetNumDimensions(); }
 
+  static constexpr bool SupportsWeightedFill =
+      std::is_floating_point_v<T> || std::is_same_v<T, DoubleBinWithError>;
+
+private:
+  template <std::size_t N, typename... A>
+  void FillImpl(const std::tuple<A...> &args, Weight w) {
+    static_assert(
+        SupportsWeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    assert(N == fAxes.GetNumDimensions());
+    auto bin = fAxes.ComputeBin<N>(args);
+    if (bin.second) {
+      fData[bin.first] += w.fValue;
+    }
+  }
+
 public:
   template <typename... A> void Fill(const std::tuple<A...> &args) {
     if (sizeof...(A) != fAxes.GetNumDimensions()) {
@@ -117,10 +138,24 @@ public:
   }
 
   template <typename... A> void Fill(const A &...args) {
-    if (sizeof...(A) != fAxes.GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
+    auto t = std::forward_as_tuple(args...);
+    // Could use std::tuple_element_t<sizeof...(A) - 1, decltype(t)>, but that
+    // would be const Weight &
+    if constexpr (std::is_same_v<typename Internal::LastType<A...>::type,
+                                 Weight>) {
+      static_assert(
+          SupportsWeightedFill,
+          "Fill with Weight is only supported for floating point bin types");
+      if (sizeof...(A) - 1 != fAxes.GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      FillImpl<sizeof...(A) - 1>(t, std::get<sizeof...(A) - 1>(t));
+    } else {
+      if (sizeof...(A) != fAxes.GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      Fill(t);
     }
-    Fill(std::forward_as_tuple(args...));
   }
 
   template <class... Axes>
@@ -134,34 +169,18 @@ public:
     }
   }
 
-  static constexpr bool SupportsWeightedFill =
-      std::is_floating_point_v<T> || std::is_same_v<T, DoubleBinWithError>;
-
-  template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
+  template <typename... A> void Fill(const std::tuple<A...> &args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    auto bin = fAxes.ComputeBin(args);
-    if (bin.second) {
-      fData[bin.first] += w.fValue;
-    }
-  }
-
-  template <typename... A> void Fill(Weight w, const A &...args) {
-    static_assert(
-        SupportsWeightedFill,
-        "Fill with Weight is only supported for floating point bin types");
-    if (sizeof...(A) != fAxes.GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
-    }
-    Fill(w, std::forward_as_tuple(args...));
+    FillImpl<sizeof...(A)>(args, w);
   }
 
   template <class... Axes>
-  void Fill(Weight w, const typename Axes::ArgumentType &...args) {
+  void Fill(const typename Axes::ArgumentType &...args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
@@ -174,6 +193,20 @@ public:
     }
   }
 
+private:
+  template <std::size_t N, typename... A>
+  void FillAtomicImpl(const std::tuple<A...> &args, Weight w) {
+    static_assert(
+        SupportsWeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    assert(N == fAxes.GetNumDimensions());
+    auto bin = fAxes.ComputeBin<N>(args);
+    if (bin.second) {
+      Internal::AtomicAddDouble(&fData[bin.first], w.fValue);
+    }
+  }
+
+public:
   template <typename... A> void FillAtomic(const std::tuple<A...> &args) {
     if (sizeof...(A) != fAxes.GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -185,10 +218,24 @@ public:
   }
 
   template <typename... A> void FillAtomic(const A &...args) {
-    if (sizeof...(A) != fAxes.GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
+    auto t = std::forward_as_tuple(args...);
+    // Could use std::tuple_element_t<sizeof...(A) - 1, decltype(t)>, but that
+    // would be const Weight &
+    if constexpr (std::is_same_v<typename Internal::LastType<A...>::type,
+                                 Weight>) {
+      static_assert(
+          SupportsWeightedFill,
+          "Fill with Weight is only supported for floating point bin types");
+      if (sizeof...(A) - 1 != fAxes.GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      FillAtomicImpl<sizeof...(A) - 1>(t, std::get<sizeof...(A) - 1>(t));
+    } else {
+      if (sizeof...(A) != fAxes.GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      FillAtomic(t);
     }
-    FillAtomic(std::forward_as_tuple(args...));
   }
 
   template <class... Axes>
@@ -203,31 +250,18 @@ public:
   }
 
   template <typename... A>
-  void FillAtomic(Weight w, const std::tuple<A...> &args) {
+  void FillAtomic(const std::tuple<A...> &args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fAxes.GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    auto bin = fAxes.ComputeBin(args);
-    if (bin.second) {
-      Internal::AtomicAddDouble(&fData[bin.first], w.fValue);
-    }
-  }
-
-  template <typename... A> void FillAtomic(Weight w, const A &...args) {
-    static_assert(
-        SupportsWeightedFill,
-        "Fill with Weight is only supported for floating point bin types");
-    if (sizeof...(A) != fAxes.GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
-    }
-    FillAtomic(w, std::forward_as_tuple(args...));
+    FillAtomicImpl<sizeof...(A)>(args, w);
   }
 
   template <class... Axes>
-  void FillAtomic(Weight w, const typename Axes::ArgumentType &...args) {
+  void FillAtomic(const typename Axes::ArgumentType &...args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");

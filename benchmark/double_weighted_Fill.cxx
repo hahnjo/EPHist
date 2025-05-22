@@ -10,7 +10,7 @@
 BENCHMARK_DEFINE_F(DoubleWeighted, Fill)(benchmark::State &state) {
   for (auto _ : state) {
     for (std::size_t i = 0; i < state.range(0); i++) {
-      h1.Fill(EPHist::Weight(fNumbers[2 * i]), fNumbers[2 * i + 1]);
+      h1.Fill(fNumbers[2 * i], EPHist::Weight(fNumbers[2 * i + 1]));
     }
     h1.Clear();
   }

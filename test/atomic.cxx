@@ -214,7 +214,7 @@ TEST(FloatRegular1D, FillAtomicWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -227,7 +227,7 @@ TEST(FloatRegular1D, FillAtomicTupleWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.FillAtomic(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -240,7 +240,7 @@ TEST(FloatRegular1D, TemplatedFillAtomicWeight) {
   EPHist::EPHist<float> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -321,7 +321,7 @@ TEST(DoubleRegular1D, FillAtomicWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -334,7 +334,7 @@ TEST(DoubleRegular1D, FillAtomicTupleWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.FillAtomic(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -347,7 +347,7 @@ TEST(DoubleRegular1D, TemplatedFillAtomicWeight) {
   EPHist::EPHist<double> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -361,8 +361,8 @@ TEST(DoubleBinWithErrorRegular1D, AddAtomic) {
   EPHist::EPHist<EPHist::DoubleBinWithError> hB(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    hA.Fill(EPHist::Weight(0.5 + i * 0.1), i);
-    hB.Fill(EPHist::Weight(1.5 + i * 0.2), i);
+    hA.Fill(i, EPHist::Weight(0.5 + i * 0.1));
+    hB.Fill(i, EPHist::Weight(1.5 + i * 0.2));
   }
 
   EPHist::EPHist<EPHist::DoubleBinWithError> hC(Bins, 0, Bins);
@@ -439,7 +439,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomicWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -455,7 +455,7 @@ TEST(DoubleBinWithErrorRegular1D, FillAtomicTupleWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+    h1.FillAtomic(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
@@ -471,7 +471,7 @@ TEST(DoubleBinWithErrorRegular1D, TemplatedFillAtomicWeight) {
   EPHist::EPHist<EPHist::DoubleBinWithError> h1(Bins, 0, Bins);
 
   for (std::size_t i = 0; i < Bins; i++) {
-    h1.FillAtomic<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+    h1.FillAtomic<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {

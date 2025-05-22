@@ -5,6 +5,7 @@
 
 #include "EPHist.hxx"
 #include "ParallelFillStrategy.hxx"
+#include "TypeTraits.hxx"
 
 #include <cassert>
 #include <memory>
@@ -54,6 +55,28 @@ public:
     }
   }
 
+  static constexpr bool SupportsWeightedFill = EPHist<T>::SupportsWeightedFill;
+
+private:
+  template <std::size_t N, typename... A>
+  void FillImpl(const std::tuple<A...> &args, Weight w) {
+    static_assert(
+        SupportsWeightedFill,
+        "Fill with Weight is only supported for floating point bin types");
+    assert(N == fHist->GetNumDimensions());
+    switch (fStrategy) {
+    case ParallelFillStrategy::Automatic:
+    case ParallelFillStrategy::Atomic:
+      fHist->template FillAtomicImpl<N>(args, w);
+      break;
+    case ParallelFillStrategy::PerFillContext:
+      assert(fLocalHist);
+      fLocalHist->template FillImpl<N>(args, w);
+      break;
+    }
+  }
+
+public:
   template <typename... A> void Fill(const std::tuple<A...> &args) {
     if (sizeof...(A) != fHist->GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
@@ -71,10 +94,24 @@ public:
   }
 
   template <typename... A> void Fill(const A &...args) {
-    if (sizeof...(A) != fHist->GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
+    auto t = std::forward_as_tuple(args...);
+    // Could use std::tuple_element_t<sizeof...(A) - 1, decltype(t)>, but that
+    // would be const Weight &
+    if constexpr (std::is_same_v<typename Internal::LastType<A...>::type,
+                                 Weight>) {
+      static_assert(
+          SupportsWeightedFill,
+          "Fill with Weight is only supported for floating point bin types");
+      if (sizeof...(A) - 1 != fHist->GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      FillImpl<sizeof...(A) - 1>(t, std::get<sizeof...(A) - 1>(t));
+    } else {
+      if (sizeof...(A) != fHist->GetNumDimensions()) {
+        throw std::invalid_argument("invalid number of arguments to Fill");
+      }
+      Fill(t);
     }
-    Fill(std::forward_as_tuple(args...));
   }
 
   template <class... Axes>
@@ -94,39 +131,18 @@ public:
     }
   }
 
-  static constexpr bool SupportsWeightedFill = EPHist<T>::SupportsWeightedFill;
-
-  template <typename... A> void Fill(Weight w, const std::tuple<A...> &args) {
+  template <typename... A> void Fill(const std::tuple<A...> &args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
     if (sizeof...(A) != fHist->GetNumDimensions()) {
       throw std::invalid_argument("invalid number of arguments to Fill");
     }
-    switch (fStrategy) {
-    case ParallelFillStrategy::Automatic:
-    case ParallelFillStrategy::Atomic:
-      fHist->FillAtomic(w, args);
-      break;
-    case ParallelFillStrategy::PerFillContext:
-      assert(fLocalHist);
-      fLocalHist->Fill(w, args);
-      break;
-    }
-  }
-
-  template <typename... A> void Fill(Weight w, const A &...args) {
-    static_assert(
-        SupportsWeightedFill,
-        "Fill with Weight is only supported for floating point bin types");
-    if (sizeof...(A) != fHist->GetNumDimensions()) {
-      throw std::invalid_argument("invalid number of arguments to Fill");
-    }
-    Fill(w, std::forward_as_tuple(args...));
+    FillImpl<sizeof...(A)>(args, w);
   }
 
   template <class... Axes>
-  void Fill(Weight w, const typename Axes::ArgumentType &...args) {
+  void Fill(const typename Axes::ArgumentType &...args, Weight w) {
     static_assert(
         SupportsWeightedFill,
         "Fill with Weight is only supported for floating point bin types");
@@ -136,11 +152,11 @@ public:
     switch (fStrategy) {
     case ParallelFillStrategy::Automatic:
     case ParallelFillStrategy::Atomic:
-      fHist->template FillAtomic<Axes...>(w, args...);
+      fHist->template FillAtomic<Axes...>(args..., w);
       break;
     case ParallelFillStrategy::PerFillContext:
       assert(fLocalHist);
-      fLocalHist->template Fill<Axes...>(w, args...);
+      fLocalHist->template Fill<Axes...>(args..., w);
       break;
     }
   }

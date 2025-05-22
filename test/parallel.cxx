@@ -244,7 +244,7 @@ TEST_P(ParallelHelperFloatRegular1D, FillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -261,7 +261,7 @@ TEST_P(ParallelHelperFloatRegular1D, FillTupleWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+      context->Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -278,7 +278,7 @@ TEST_P(ParallelHelperFloatRegular1D, TemplatedFillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -358,7 +358,7 @@ TEST_P(ParallelHelperDoubleRegular1D, FillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -375,7 +375,7 @@ TEST_P(ParallelHelperDoubleRegular1D, FillTupleWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+      context->Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -392,7 +392,7 @@ TEST_P(ParallelHelperDoubleRegular1D, TemplatedFillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -482,7 +482,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, FillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -503,7 +503,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, FillTupleWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill(EPHist::Weight(0.5 + i * 0.1), std::make_tuple(i));
+      context->Fill(std::make_tuple(i), EPHist::Weight(0.5 + i * 0.1));
     }
   }
 
@@ -524,7 +524,7 @@ TEST_P(ParallelHelperDoubleBinWithErrorRegular1D, TemplatedFillWeight) {
     EPHist::ParallelHelper helper(h1, GetParam());
     auto context = helper.CreateFillContext();
     for (std::size_t i = 0; i < Bins; i++) {
-      context->Fill<EPHist::RegularAxis>(EPHist::Weight(0.5 + i * 0.1), i);
+      context->Fill<EPHist::RegularAxis>(i, EPHist::Weight(0.5 + i * 0.1));
     }
   }
 

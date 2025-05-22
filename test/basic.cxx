@@ -260,12 +260,12 @@ TEST(Basic, FillWeightInvalidNumberOfArguments) {
   EPHist::EPHist<double> h1(axis);
   EPHist::EPHist<double> h2({axis, axis});
 
-  EXPECT_NO_THROW(h1.Fill(EPHist::Weight(1), 1));
-  EXPECT_THROW(h1.Fill(EPHist::Weight(1), 1, 2), std::invalid_argument);
+  EXPECT_NO_THROW(h1.Fill(1, EPHist::Weight(1)));
+  EXPECT_THROW(h1.Fill(1, 2, EPHist::Weight(1)), std::invalid_argument);
 
-  EXPECT_THROW(h2.Fill(EPHist::Weight(1), 1), std::invalid_argument);
-  EXPECT_NO_THROW(h2.Fill(EPHist::Weight(1), 1, 2));
-  EXPECT_THROW(h2.Fill(EPHist::Weight(1), 1, 2, 3), std::invalid_argument);
+  EXPECT_THROW(h2.Fill(1, EPHist::Weight(1)), std::invalid_argument);
+  EXPECT_NO_THROW(h2.Fill(1, 2, EPHist::Weight(1)));
+  EXPECT_THROW(h2.Fill(1, 2, 3, EPHist::Weight(1)), std::invalid_argument);
 }
 
 TEST(Basic, FillTupleWeightInvalidNumberOfArguments) {
@@ -274,14 +274,14 @@ TEST(Basic, FillTupleWeightInvalidNumberOfArguments) {
   EPHist::EPHist<double> h1(axis);
   EPHist::EPHist<double> h2({axis, axis});
 
-  EXPECT_NO_THROW(h1.Fill(EPHist::Weight(1), std::make_tuple(1)));
-  EXPECT_THROW(h1.Fill(EPHist::Weight(1), std::make_tuple(1, 2)),
+  EXPECT_NO_THROW(h1.Fill(std::make_tuple(1), EPHist::Weight(1)));
+  EXPECT_THROW(h1.Fill(std::make_tuple(1, 2), EPHist::Weight(1)),
                std::invalid_argument);
 
-  EXPECT_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1)),
+  EXPECT_THROW(h2.Fill(std::make_tuple(1), EPHist::Weight(1)),
                std::invalid_argument);
-  EXPECT_NO_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1, 2)));
-  EXPECT_THROW(h2.Fill(EPHist::Weight(1), std::make_tuple(1, 2, 3)),
+  EXPECT_NO_THROW(h2.Fill(std::make_tuple(1, 2), EPHist::Weight(1)));
+  EXPECT_THROW(h2.Fill(std::make_tuple(1, 2, 3), EPHist::Weight(1)),
                std::invalid_argument);
 }
 
@@ -291,18 +291,18 @@ TEST(Basic, TemplatedFillWeightInvalidNumberOfArguments) {
   EPHist::EPHist<double> h1(axis);
   EPHist::EPHist<double> h2({axis, axis});
 
-  EXPECT_NO_THROW(h1.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1));
+  EXPECT_NO_THROW(h1.Fill<EPHist::RegularAxis>(1, EPHist::Weight(1)));
   EXPECT_THROW((h1.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
-                   EPHist::Weight(1), 1, 2)),
+                   1, 2, EPHist::Weight(1))),
                std::invalid_argument);
 
-  EXPECT_THROW(h2.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1),
+  EXPECT_THROW(h2.Fill<EPHist::RegularAxis>(1, EPHist::Weight(1)),
                std::invalid_argument);
   EXPECT_NO_THROW((h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
-      EPHist::Weight(1), 1, 2)));
+      1, 2, EPHist::Weight(1))));
   EXPECT_THROW(
       (h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis, EPHist::RegularAxis>(
-          EPHist::Weight(1), 1, 2, 3)),
+          1, 2, 3, EPHist::Weight(1))),
       std::invalid_argument);
 }
 
@@ -318,19 +318,19 @@ TEST(Basic, TemplatedFillWeightInvalidAxis) {
   EPHist::RegularAxis regularAxis(Bins, 0, Bins);
   EPHist::EPHist<double> h2({regularAxis, regularAxis});
 
-  EXPECT_THROW((h1.Fill<EPHist::RegularAxis>(EPHist::Weight(1), 1)),
+  EXPECT_THROW((h1.Fill<EPHist::RegularAxis>(1, EPHist::Weight(1))),
                std::invalid_argument);
-  EXPECT_NO_THROW(h1.Fill<EPHist::VariableBinAxis>(EPHist::Weight(1), 1));
+  EXPECT_NO_THROW(h1.Fill<EPHist::VariableBinAxis>(1, EPHist::Weight(1)));
 
   EXPECT_NO_THROW((h2.Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
-      EPHist::Weight(1), 1, 2)));
+      1, 2, EPHist::Weight(1))));
   EXPECT_THROW((h2.Fill<EPHist::RegularAxis, EPHist::VariableBinAxis>(
-                   EPHist::Weight(1), 1, 2)),
+                   1, 2, EPHist::Weight(1))),
                std::invalid_argument);
   EXPECT_THROW((h2.Fill<EPHist::VariableBinAxis, EPHist::RegularAxis>(
-                   EPHist::Weight(1), 1, 2)),
+                   1, 2, EPHist::Weight(1))),
                std::invalid_argument);
   EXPECT_THROW((h2.Fill<EPHist::VariableBinAxis, EPHist::VariableBinAxis>(
-                   EPHist::Weight(1), 1, 2)),
+                   1, 2, EPHist::Weight(1))),
                std::invalid_argument);
 }
