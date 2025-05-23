@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -65,19 +66,30 @@ private:
   template <std::size_t I, std::size_t N, typename... A>
   std::pair<std::size_t, bool> ComputeBin(std::size_t bin,
                                           const std::tuple<A...> &args) const {
+    using ArgumentType = std::tuple_element_t<I, std::tuple<A...>>;
     const auto &axis = fAxes[I];
     std::pair<std::size_t, bool> axisBin;
     switch (axis.index()) {
     case Internal::AxisVariantIndex<RegularAxis>::value: {
-      const auto *regular = std::get_if<RegularAxis>(&axis);
-      bin *= regular->GetTotalNumBins();
-      axisBin = regular->ComputeBin(std::get<I>(args));
+      if constexpr (std::is_convertible_v<ArgumentType,
+                                          RegularAxis::ArgumentType>) {
+        const auto *regular = std::get_if<RegularAxis>(&axis);
+        bin *= regular->GetTotalNumBins();
+        axisBin = regular->ComputeBin(std::get<I>(args));
+      } else {
+        throw std::invalid_argument("cannot convert argument");
+      }
       break;
     }
     case Internal::AxisVariantIndex<VariableBinAxis>::value: {
-      const auto *variable = std::get_if<VariableBinAxis>(&axis);
-      bin *= variable->GetTotalNumBins();
-      axisBin = variable->ComputeBin(std::get<I>(args));
+      if constexpr (std::is_convertible_v<ArgumentType,
+                                          VariableBinAxis::ArgumentType>) {
+        const auto *variable = std::get_if<VariableBinAxis>(&axis);
+        bin *= variable->GetTotalNumBins();
+        axisBin = variable->ComputeBin(std::get<I>(args));
+      } else {
+        throw std::invalid_argument("cannot convert argument");
+      }
       break;
     }
     }

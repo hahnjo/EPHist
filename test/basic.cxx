@@ -177,6 +177,25 @@ TEST(Basic, GetBinContentAtArrayInvalidNumberOfArguments) {
   EXPECT_THROW(h2.GetBinContentAt(a3), std::invalid_argument);
 }
 
+TEST(Basic, FillInvalidArgumentType) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> h1(Bins, 0, Bins);
+
+  EXPECT_THROW(h1.Fill("test"), std::invalid_argument);
+
+  // An implicitly convertible type works...
+  struct ConvertibleToDouble {
+    operator double() const { return 1.0; }
+  };
+  EXPECT_NO_THROW(h1.Fill(ConvertibleToDouble{}));
+
+  // ... but an explicit conversion operator is not called!
+  struct ExplicitlyConvertibleToDouble {
+    explicit operator double() const { return 1.0; }
+  };
+  EXPECT_THROW(h1.Fill(ExplicitlyConvertibleToDouble{}), std::invalid_argument);
+}
+
 TEST(Basic, FillInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
@@ -191,6 +210,26 @@ TEST(Basic, FillInvalidNumberOfArguments) {
   EXPECT_THROW(h2.Fill(1), std::invalid_argument);
   EXPECT_NO_THROW(h2.Fill(1, 2));
   EXPECT_THROW(h2.Fill(1, 2, 3), std::invalid_argument);
+}
+
+TEST(Basic, FillTupleInvalidArgumentType) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> h1(Bins, 0, Bins);
+
+  EXPECT_THROW(h1.Fill(std::make_tuple("test")), std::invalid_argument);
+
+  // An implicitly convertible type works...
+  struct ConvertibleToDouble {
+    operator double() const { return 1.0; }
+  };
+  EXPECT_NO_THROW(h1.Fill(std::make_tuple(ConvertibleToDouble{})));
+
+  // ... but an explicit conversion operator is not called!
+  struct ExplicitlyConvertibleToDouble {
+    explicit operator double() const { return 1.0; }
+  };
+  EXPECT_THROW(h1.Fill(std::make_tuple(ExplicitlyConvertibleToDouble{})),
+               std::invalid_argument);
 }
 
 TEST(Basic, FillTupleInvalidNumberOfArguments) {
