@@ -5,6 +5,7 @@
 
 #include "BinIndex.hxx"
 #include "BinIndexRange.hxx"
+#include "CategoricalAxis.hxx"
 #include "RegularAxis.hxx"
 #include "VariableBinAxis.hxx"
 
@@ -23,7 +24,7 @@ namespace EPHist {
 template <typename T> class EPHist;
 template <bool WithError> class Profile;
 
-using AxisVariant = std::variant<RegularAxis, VariableBinAxis>;
+using AxisVariant = std::variant<RegularAxis, VariableBinAxis, CategoricalAxis>;
 
 namespace Internal {
 // Explicit specializations are only allowed at namespace scope.
@@ -33,6 +34,9 @@ template <> struct AxisVariantIndex<RegularAxis> {
 };
 template <> struct AxisVariantIndex<VariableBinAxis> {
   static constexpr std::size_t value = 1;
+};
+template <> struct AxisVariantIndex<CategoricalAxis> {
+  static constexpr std::size_t value = 2;
 };
 } // namespace Internal
 
@@ -57,6 +61,8 @@ public:
         totalNumBins *= regular->GetTotalNumBins();
       } else if (auto *variable = std::get_if<VariableBinAxis>(&axis)) {
         totalNumBins *= variable->GetTotalNumBins();
+      } else if (auto *categorical = std::get_if<CategoricalAxis>(&axis)) {
+        totalNumBins *= categorical->GetTotalNumBins();
       }
     }
     return totalNumBins;
@@ -87,6 +93,17 @@ private:
         const auto *variable = std::get_if<VariableBinAxis>(&axis);
         bin *= variable->GetTotalNumBins();
         axisBin = variable->ComputeBin(std::get<I>(args));
+      } else {
+        throw std::invalid_argument("cannot convert argument");
+      }
+      break;
+    }
+    case Internal::AxisVariantIndex<CategoricalAxis>::value: {
+      if constexpr (std::is_convertible_v<ArgumentType,
+                                          CategoricalAxis::ArgumentType>) {
+        const auto *categorical = std::get_if<CategoricalAxis>(&axis);
+        bin *= categorical->GetTotalNumBins();
+        axisBin = categorical->ComputeBin(std::get<I>(args));
       } else {
         throw std::invalid_argument("cannot convert argument");
       }
@@ -172,6 +189,12 @@ public:
         const auto *variable = std::get_if<VariableBinAxis>(&axis);
         bin *= variable->GetTotalNumBins();
         axisBin = variable->GetBin(index);
+        break;
+      }
+      case Internal::AxisVariantIndex<CategoricalAxis>::value: {
+        const auto *categorical = std::get_if<CategoricalAxis>(&axis);
+        bin *= categorical->GetTotalNumBins();
+        axisBin = categorical->GetBin(index);
         break;
       }
       }

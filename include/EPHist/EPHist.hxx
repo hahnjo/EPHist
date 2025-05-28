@@ -45,6 +45,8 @@ public:
       : EPHist(std::vector<AxisVariant>{axis}) {}
   explicit EPHist(const VariableBinAxis &axis)
       : EPHist(std::vector<AxisVariant>{axis}) {}
+  explicit EPHist(const CategoricalAxis &axis)
+      : EPHist(std::vector<AxisVariant>{axis}) {}
 
   // Copy constructor and assignment operator are deleted to avoid surprises.
   // Use the explicit Clone() function to create a copy.

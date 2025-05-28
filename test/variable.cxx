@@ -8,6 +8,7 @@
 
 #include <limits>
 #include <tuple>
+#include <vector>
 
 TEST(VariableBinAxis, Constructor) {
   static constexpr std::size_t Bins = 20;

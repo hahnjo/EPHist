@@ -3,6 +3,7 @@
 #include <EPHist/Axes.hxx>
 #include <EPHist/BinIndex.hxx>
 #include <EPHist/BinIndexRange.hxx>
+#include <EPHist/CategoricalAxis.hxx>
 #include <EPHist/RegularAxis.hxx>
 #include <EPHist/VariableBinAxis.hxx>
 
@@ -49,19 +50,25 @@ TEST(Axes, ComputeBin) {
   }
   binsY.push_back(BinsY);
   EPHist::VariableBinAxis axisY(binsY);
-  EPHist::Detail::Axes axes({axisX, axisY});
+  std::vector<std::string> categories = {"a", "b", "c"};
+  EPHist::CategoricalAxis axisZ(categories);
+  EPHist::Detail::Axes axes({axisX, axisY, axisZ});
 
-  auto axisBin = axes.ComputeBin(std::make_tuple(1, 2));
-  EXPECT_EQ(axisBin.first, (BinsY + 2) + 2);
+  auto axisBin = axes.ComputeBin(std::make_tuple(1, 2, "c"));
+  EXPECT_EQ(axisBin.first, (BinsY + 2) * (categories.size() + 1) +
+                               2 * (categories.size() + 1) + 2);
   EXPECT_TRUE(axisBin.second);
 
-  axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::VariableBinAxis>(2, 3);
-  EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) + 3);
+  axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::VariableBinAxis,
+                            EPHist::CategoricalAxis>(2, 3, "b");
+  EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) * (categories.size() + 1) +
+                               3 * (categories.size() + 1) + 1);
   EXPECT_TRUE(axisBin.second);
 
-  std::array<EPHist::BinIndex, 2> args = {4, 5};
+  std::array<EPHist::BinIndex, 3> args = {4, 5, 2};
   axisBin = axes.ComputeBin(args);
-  EXPECT_EQ(axisBin.first, 4 * (BinsY + 2) + 5);
+  EXPECT_EQ(axisBin.first, 4 * (BinsY + 2) * (categories.size() + 1) +
+                               5 * (categories.size() + 1) + 2);
   EXPECT_TRUE(axisBin.second);
 
   args[1] = EPHist::BinIndex();
