@@ -89,13 +89,12 @@ TEST(Basic, AddUnequalRegularAxis) {
   EXPECT_THROW(hA.Add(hB), std::invalid_argument);
 }
 
-TEST(Basic, AddUnderflowOverflowBins) {
+TEST(Basic, AddFlowBins) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
   EPHist::EPHist<int> hA(axis);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> hB(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> hB(axisNoFlowBins);
 
   EXPECT_THROW(hA.Add(hB), std::invalid_argument);
 }

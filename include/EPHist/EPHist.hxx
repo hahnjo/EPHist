@@ -298,7 +298,7 @@ public:
       case Internal::AxisVariantIndex<RegularAxis>::value: {
         const auto *regular = std::get_if<RegularAxis>(&axis);
         const std::size_t numBins = regular->GetNumBins();
-        if (regular->AreUnderflowOverflowBinsEnabled()) {
+        if (regular->AreFlowBinsEnabled()) {
           fullRanges[i] = BinIndexRange::Full(numBins);
         } else {
           fullRanges[i] = BinIndexRange(0, numBins);
@@ -309,7 +309,7 @@ public:
       case Internal::AxisVariantIndex<VariableBinAxis>::value: {
         const auto *variable = std::get_if<VariableBinAxis>(&axis);
         const std::size_t numBins = variable->GetNumBins();
-        if (variable->AreUnderflowOverflowBinsEnabled()) {
+        if (variable->AreFlowBinsEnabled()) {
           fullRanges[i] = BinIndexRange::Full(numBins);
         } else {
           fullRanges[i] = BinIndexRange(0, numBins);

@@ -150,7 +150,7 @@ TEST(Axes, Slice) {
   {
     const auto *slicedAxis = std::get_if<EPHist::RegularAxis>(&sliced[0]);
     ASSERT_TRUE(slicedAxis != nullptr);
-    EXPECT_TRUE(slicedAxis->AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slicedAxis->AreFlowBinsEnabled());
     EXPECT_EQ(slicedAxis->GetNumBins(), 10);
     EXPECT_FLOAT_EQ(slicedAxis->GetLow(), 2);
     EXPECT_FLOAT_EQ(slicedAxis->GetHigh(), 12);
@@ -158,7 +158,7 @@ TEST(Axes, Slice) {
   {
     const auto *slicedAxis = std::get_if<EPHist::VariableBinAxis>(&sliced[1]);
     ASSERT_TRUE(slicedAxis != nullptr);
-    EXPECT_TRUE(slicedAxis->AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slicedAxis->AreFlowBinsEnabled());
     ASSERT_EQ(slicedAxis->GetNumBins(), 7);
     EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(0), 8);
     EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(7), 15);

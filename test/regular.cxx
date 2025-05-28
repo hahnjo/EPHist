@@ -18,8 +18,7 @@ TEST(RegularAxis, Constructor) {
   EXPECT_EQ(axis.GetLow(), 0);
   EXPECT_EQ(axis.GetHigh(), Bins);
 
-  axis =
-      EPHist::RegularAxis(Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  axis = EPHist::RegularAxis(Bins, 0, Bins, /*enableFlowBins=*/false);
   EXPECT_EQ(axis.GetNumBins(), Bins);
   EXPECT_EQ(axis.GetTotalNumBins(), Bins);
 }
@@ -27,8 +26,7 @@ TEST(RegularAxis, Constructor) {
 TEST(RegularAxis, Equality) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axisA(Bins, 0, Bins);
-  EPHist::RegularAxis axisANoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::RegularAxis axisANoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
   EPHist::RegularAxis axisB(Bins, 0, Bins);
   EPHist::RegularAxis axisC(Bins / 2, 0, Bins);
   EPHist::RegularAxis axisD(Bins, 0, Bins / 2);
@@ -38,7 +36,7 @@ TEST(RegularAxis, Equality) {
   EXPECT_TRUE(axisA == axisB);
   EXPECT_TRUE(axisB == axisA);
 
-  EXPECT_FALSE(axisA == axisANoUnderflowOverflow);
+  EXPECT_FALSE(axisA == axisANoFlowBins);
 
   EXPECT_FALSE(axisA == axisC);
   EXPECT_FALSE(axisA == axisD);
@@ -54,15 +52,14 @@ TEST(RegularAxis, Equality) {
 TEST(RegularAxis, GetBin) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
 
   {
     auto underflow = EPHist::BinIndex::Underflow();
     auto axisBin = axis.GetBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(underflow);
+    axisBin = axisNoFlowBins.GetBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -71,7 +68,7 @@ TEST(RegularAxis, GetBin) {
     auto axisBin = axis.GetBin(i);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(i);
+    axisBin = axisNoFlowBins.GetBin(i);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
   }
@@ -81,7 +78,7 @@ TEST(RegularAxis, GetBin) {
     auto axisBin = axis.GetBin(Bins);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(Bins);
+    axisBin = axisNoFlowBins.GetBin(Bins);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -91,7 +88,7 @@ TEST(RegularAxis, GetBin) {
     auto axisBin = axis.GetBin(overflow);
     EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, Bins + 1);
-    axisBin = axisNoUnderflowOverflow.GetBin(overflow);
+    axisBin = axisNoFlowBins.GetBin(overflow);
     EXPECT_FALSE(axisBin.second);
   }
 
@@ -99,7 +96,7 @@ TEST(RegularAxis, GetBin) {
     EPHist::BinIndex invalid;
     auto axisBin = axis.GetBin(invalid);
     EXPECT_FALSE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(invalid);
+    axisBin = axisNoFlowBins.GetBin(invalid);
     EXPECT_FALSE(axisBin.second);
   }
 }
@@ -107,8 +104,7 @@ TEST(RegularAxis, GetBin) {
 TEST(RegularAxis, ComputeBin) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
 
   // Underflow
   static constexpr double NegativeInfinity =
@@ -119,7 +115,7 @@ TEST(RegularAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(underflow);
+    axisBin = axisNoFlowBins.ComputeBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -128,7 +124,7 @@ TEST(RegularAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(i + 0.5);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(i + 0.5);
+    axisBin = axisNoFlowBins.ComputeBin(i + 0.5);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
   }
@@ -144,7 +140,7 @@ TEST(RegularAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(overflow);
     EXPECT_EQ(axisBin.first, Bins + 1);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(overflow);
+    axisBin = axisNoFlowBins.ComputeBin(overflow);
     EXPECT_EQ(axisBin.first, Bins + 1);
     EXPECT_FALSE(axisBin.second);
   }
@@ -153,15 +149,14 @@ TEST(RegularAxis, ComputeBin) {
 TEST(RegularAxis, Slice) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
 
   const auto full = EPHist::BinIndexRange::Full(Bins);
   const auto full0 = EPHist::BinIndexRange::Full(0);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     for (auto &&f : {full, full0}) {
       const auto slice = a.Slice(f);
-      EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+      EXPECT_TRUE(slice.AreFlowBinsEnabled());
       EXPECT_EQ(slice.GetNumBins(), Bins);
       EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
       EXPECT_FLOAT_EQ(slice.GetLow(), 0);
@@ -172,9 +167,9 @@ TEST(RegularAxis, Slice) {
   const auto bin0 = EPHist::BinIndex(0);
   const auto bin20 = EPHist::BinIndex(Bins);
   const auto inner = EPHist::BinIndexRange(bin0, bin20);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     const auto slice = a.Slice(inner);
-    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slice.AreFlowBinsEnabled());
     EXPECT_EQ(slice.GetNumBins(), Bins);
     EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
     EXPECT_FLOAT_EQ(slice.GetLow(), 0);
@@ -184,9 +179,9 @@ TEST(RegularAxis, Slice) {
   const auto bin5 = EPHist::BinIndex(5);
   const auto bin15 = EPHist::BinIndex(15);
   const auto range = EPHist::BinIndexRange(bin5, bin15);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     const auto slice = a.Slice(range);
-    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slice.AreFlowBinsEnabled());
     EXPECT_EQ(slice.GetNumBins(), 10);
     EXPECT_EQ(slice.GetTotalNumBins(), 12);
     EXPECT_FLOAT_EQ(slice.GetLow(), 5);
@@ -233,7 +228,7 @@ TEST(IntRegular1D, Fill) {
 TEST(IntRegular1D, FillDiscard) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins,
-                           /*enableUnderflowOverflowBins=*/false);
+                           /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill(-100);
@@ -250,20 +245,19 @@ TEST(IntRegular1D, FillDiscard) {
 TEST(IntRegular1D, FillOnlyInner) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill(i);
-    h1NoUnderflowOverflow.Fill(i);
+    h1NoFlowBins.Fill(i);
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
     EXPECT_EQ(h1.GetBinContentAt(EPHist::BinIndex(i)), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContentAt(EPHist::BinIndex(i)), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContentAt(EPHist::BinIndex(i)), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
@@ -287,7 +281,7 @@ TEST(IntRegular1D, FillTuple) {
 TEST(IntRegular1D, FillTupleDiscard) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins,
-                           /*enableUnderflowOverflowBins=*/false);
+                           /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill(std::make_tuple(-100));
@@ -304,18 +298,17 @@ TEST(IntRegular1D, FillTupleDiscard) {
 TEST(IntRegular1D, FillTupleOnlyInner) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill(std::make_tuple(i));
-    h1NoUnderflowOverflow.Fill(std::make_tuple(i));
+    h1NoFlowBins.Fill(std::make_tuple(i));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
@@ -339,7 +332,7 @@ TEST(IntRegular1D, TemplatedFill) {
 TEST(IntRegular1D, TemplatedFillDiscard) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins,
-                           /*enableUnderflowOverflowBins=*/false);
+                           /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill<EPHist::RegularAxis>(-100);
@@ -356,18 +349,17 @@ TEST(IntRegular1D, TemplatedFillDiscard) {
 TEST(IntRegular1D, TemplatedFillOnlyInner) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill<EPHist::RegularAxis>(i);
-    h1NoUnderflowOverflow.Fill<EPHist::RegularAxis>(i);
+    h1NoFlowBins.Fill<EPHist::RegularAxis>(i);
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
@@ -411,10 +403,10 @@ TEST(IntRegular2D, Fill) {
 TEST(IntRegular2D, FillDiscard) {
   static constexpr std::size_t BinsX = 20;
   EPHist::RegularAxis axisX(BinsX, 0, BinsX,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   static constexpr std::size_t BinsY = 30;
   EPHist::RegularAxis axisY(BinsY, 0, BinsY,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   EPHist::EPHist<int> h2({axisX, axisY});
 
   for (int x = -1; x < static_cast<int>(BinsX) + 1; x++) {
@@ -480,10 +472,10 @@ TEST(IntRegular2D, FillTuple) {
 TEST(IntRegular2D, FillTupleDiscard) {
   static constexpr std::size_t BinsX = 20;
   EPHist::RegularAxis axisX(BinsX, 0, BinsX,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   static constexpr std::size_t BinsY = 30;
   EPHist::RegularAxis axisY(BinsY, 0, BinsY,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   EPHist::EPHist<int> h2({axisX, axisY});
 
   for (int x = -1; x < static_cast<int>(BinsX) + 1; x++) {
@@ -544,10 +536,10 @@ TEST(IntRegular2D, TemplatedFill) {
 TEST(IntRegular2D, TemplatedFillDiscard) {
   static constexpr std::size_t BinsX = 20;
   EPHist::RegularAxis axisX(BinsX, 0, BinsX,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   static constexpr std::size_t BinsY = 30;
   EPHist::RegularAxis axisY(BinsY, 0, BinsY,
-                            /*enableUnderflowOverflowBins=*/false);
+                            /*enableFlowBins=*/false);
   EPHist::EPHist<int> h2({axisX, axisY});
 
   for (int x = -1; x < static_cast<int>(BinsX) + 1; x++) {

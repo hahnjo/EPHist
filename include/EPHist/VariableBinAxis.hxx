@@ -18,30 +18,26 @@ public:
 
 private:
   std::vector<double> fBinEdges;
-  bool fEnableUnderflowOverflowBins;
+  bool fEnableFlowBins;
 
 public:
   explicit VariableBinAxis(std::vector<double> binEdges,
-                           bool enableUnderflowOverflowBins = true)
-      : fBinEdges(std::move(binEdges)),
-        fEnableUnderflowOverflowBins(enableUnderflowOverflowBins) {}
+                           bool enableFlowBins = true)
+      : fBinEdges(std::move(binEdges)), fEnableFlowBins(enableFlowBins) {}
 
   std::size_t GetNumBins() const { return fBinEdges.size() - 1; }
   std::size_t GetTotalNumBins() const {
-    return fEnableUnderflowOverflowBins ? fBinEdges.size() + 1
-                                        : fBinEdges.size() - 1;
+    return fEnableFlowBins ? fBinEdges.size() + 1 : fBinEdges.size() - 1;
   }
   const std::vector<double> &GetBinEdges() const { return fBinEdges; }
   double GetBinEdge(std::size_t bin) const { return fBinEdges[bin]; }
-  bool AreUnderflowOverflowBinsEnabled() const {
-    return fEnableUnderflowOverflowBins;
-  }
+  bool AreFlowBinsEnabled() const { return fEnableFlowBins; }
 
   std::pair<std::size_t, bool> GetBin(BinIndex index) const {
     if (index.IsUnderflow()) {
-      return {fBinEdges.size() - 1, fEnableUnderflowOverflowBins};
+      return {fBinEdges.size() - 1, fEnableFlowBins};
     } else if (index.IsOverflow()) {
-      return {fBinEdges.size(), fEnableUnderflowOverflowBins};
+      return {fBinEdges.size(), fEnableFlowBins};
     } else if (index.IsInvalid()) {
       return {0, false};
     }
@@ -52,10 +48,10 @@ public:
 
   std::pair<std::size_t, bool> ComputeBin(double x) const {
     if (x < fBinEdges.front()) {
-      return {fBinEdges.size() - 1, fEnableUnderflowOverflowBins};
+      return {fBinEdges.size() - 1, fEnableFlowBins};
     } else if (!(x < fBinEdges.back())) {
       // Put NaNs into overflow bin.
-      return {fBinEdges.size(), fEnableUnderflowOverflowBins};
+      return {fBinEdges.size(), fEnableFlowBins};
     }
 
     // FIXME: Optimize with binary search...
@@ -82,14 +78,14 @@ public:
     std::vector binEdges(fBinEdges.begin() + begin.GetIndex(),
                          fBinEdges.begin() + end.GetIndex() + 1);
     // Always enable underflow and overflow bins.
-    const auto enableUnderflowOverflowBins = true;
-    return VariableBinAxis(std::move(binEdges), enableUnderflowOverflowBins);
+    const auto enableFlowBins = true;
+    return VariableBinAxis(std::move(binEdges), enableFlowBins);
   }
 
   friend bool operator==(const VariableBinAxis &lhs,
                          const VariableBinAxis &rhs) {
     return lhs.fBinEdges == rhs.fBinEdges &&
-           lhs.fEnableUnderflowOverflowBins == rhs.fEnableUnderflowOverflowBins;
+           lhs.fEnableFlowBins == rhs.fEnableFlowBins;
   }
 };
 

@@ -21,7 +21,7 @@ TEST(VariableBinAxis, Constructor) {
   EXPECT_EQ(axis.GetNumBins(), Bins);
   EXPECT_EQ(axis.GetTotalNumBins(), Bins + 2);
 
-  axis = EPHist::VariableBinAxis(bins, /*enableUnderflowOverflowBins=*/false);
+  axis = EPHist::VariableBinAxis(bins, /*enableFlowBins=*/false);
   EXPECT_EQ(axis.GetNumBins(), Bins);
   EXPECT_EQ(axis.GetTotalNumBins(), Bins);
 }
@@ -47,8 +47,7 @@ TEST(VariableBinAxis, Equality) {
   binsC.push_back(Bins);
 
   EPHist::VariableBinAxis axisA(binsA);
-  EPHist::VariableBinAxis axisANoUnderflowOverflow(
-      binsA, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axisANoFlowBins(binsA, /*enableFlowBins=*/false);
   EPHist::VariableBinAxis axisA2(binsA);
   EPHist::VariableBinAxis axisB(binsB);
   EPHist::VariableBinAxis axisC(binsC);
@@ -56,7 +55,7 @@ TEST(VariableBinAxis, Equality) {
   EXPECT_TRUE(axisA == axisA);
   EXPECT_TRUE(axisA == axisA2);
 
-  EXPECT_FALSE(axisA == axisANoUnderflowOverflow);
+  EXPECT_FALSE(axisA == axisANoFlowBins);
 
   EXPECT_FALSE(axisA == axisB);
   EXPECT_FALSE(axisA == axisC);
@@ -72,15 +71,14 @@ TEST(VariableBinAxis, GetBin) {
   bins.push_back(Bins);
 
   EPHist::VariableBinAxis axis(bins);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
 
   {
     auto underflow = EPHist::BinIndex::Underflow();
     auto axisBin = axis.GetBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(underflow);
+    axisBin = axisNoFlowBins.GetBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -89,7 +87,7 @@ TEST(VariableBinAxis, GetBin) {
     auto axisBin = axis.GetBin(i);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(i);
+    axisBin = axisNoFlowBins.GetBin(i);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
   }
@@ -99,7 +97,7 @@ TEST(VariableBinAxis, GetBin) {
     auto axisBin = axis.GetBin(Bins);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(Bins);
+    axisBin = axisNoFlowBins.GetBin(Bins);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -109,7 +107,7 @@ TEST(VariableBinAxis, GetBin) {
     auto axisBin = axis.GetBin(overflow);
     EXPECT_TRUE(axisBin.second);
     EXPECT_EQ(axisBin.first, Bins + 1);
-    axisBin = axisNoUnderflowOverflow.GetBin(overflow);
+    axisBin = axisNoFlowBins.GetBin(overflow);
     EXPECT_FALSE(axisBin.second);
   }
 
@@ -117,7 +115,7 @@ TEST(VariableBinAxis, GetBin) {
     EPHist::BinIndex invalid;
     auto axisBin = axis.GetBin(invalid);
     EXPECT_FALSE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.GetBin(invalid);
+    axisBin = axisNoFlowBins.GetBin(invalid);
     EXPECT_FALSE(axisBin.second);
   }
 }
@@ -131,8 +129,7 @@ TEST(VariableBinAxis, ComputeBin) {
   bins.push_back(Bins);
 
   EPHist::VariableBinAxis axis(bins);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
 
   // Underflow
   static constexpr double NegativeInfinity =
@@ -143,7 +140,7 @@ TEST(VariableBinAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(underflow);
+    axisBin = axisNoFlowBins.ComputeBin(underflow);
     EXPECT_EQ(axisBin.first, Bins);
     EXPECT_FALSE(axisBin.second);
   }
@@ -152,7 +149,7 @@ TEST(VariableBinAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(i + 0.5);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(i + 0.5);
+    axisBin = axisNoFlowBins.ComputeBin(i + 0.5);
     EXPECT_EQ(axisBin.first, i);
     EXPECT_TRUE(axisBin.second);
   }
@@ -168,7 +165,7 @@ TEST(VariableBinAxis, ComputeBin) {
     auto axisBin = axis.ComputeBin(overflow);
     EXPECT_EQ(axisBin.first, Bins + 1);
     EXPECT_TRUE(axisBin.second);
-    axisBin = axisNoUnderflowOverflow.ComputeBin(overflow);
+    axisBin = axisNoFlowBins.ComputeBin(overflow);
     EXPECT_EQ(axisBin.first, Bins + 1);
     EXPECT_FALSE(axisBin.second);
   }
@@ -183,15 +180,14 @@ TEST(VariableBinAxis, Slice) {
   bins.push_back(Bins);
 
   EPHist::VariableBinAxis axis(bins);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
 
   const auto full = EPHist::BinIndexRange::Full(Bins);
   const auto full0 = EPHist::BinIndexRange::Full(0);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     for (auto &&f : {full, full0}) {
       const auto slice = a.Slice(f);
-      EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+      EXPECT_TRUE(slice.AreFlowBinsEnabled());
       ASSERT_EQ(slice.GetNumBins(), Bins);
       EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
       EXPECT_FLOAT_EQ(slice.GetBinEdge(0), 0);
@@ -202,9 +198,9 @@ TEST(VariableBinAxis, Slice) {
   const auto bin0 = EPHist::BinIndex(0);
   const auto bin20 = EPHist::BinIndex(Bins);
   const auto inner = EPHist::BinIndexRange(bin0, bin20);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     const auto slice = a.Slice(inner);
-    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slice.AreFlowBinsEnabled());
     ASSERT_EQ(slice.GetNumBins(), Bins);
     EXPECT_EQ(slice.GetTotalNumBins(), Bins + 2);
     EXPECT_FLOAT_EQ(slice.GetBinEdge(0), 0);
@@ -214,9 +210,9 @@ TEST(VariableBinAxis, Slice) {
   const auto bin5 = EPHist::BinIndex(5);
   const auto bin15 = EPHist::BinIndex(15);
   const auto range = EPHist::BinIndexRange(bin5, bin15);
-  for (auto &&a : {axis, axisNoUnderflowOverflow}) {
+  for (auto &&a : {axis, axisNoFlowBins}) {
     const auto slice = a.Slice(range);
-    EXPECT_TRUE(slice.AreUnderflowOverflowBinsEnabled());
+    EXPECT_TRUE(slice.AreFlowBinsEnabled());
     ASSERT_EQ(slice.GetNumBins(), 10);
     EXPECT_EQ(slice.GetTotalNumBins(), 12);
     EXPECT_FLOAT_EQ(slice.GetBinEdge(0), 5);
@@ -273,7 +269,7 @@ TEST(IntVariableBin1D, FillDiscard) {
   }
   bins.push_back(Bins);
 
-  EPHist::VariableBinAxis axis(bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axis(bins, /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill(-100);
@@ -297,18 +293,17 @@ TEST(IntVariableBin1D, FillOnlyInner) {
 
   EPHist::VariableBinAxis axis(bins);
   EPHist::EPHist<int> h1(axis);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill(i);
-    h1NoUnderflowOverflow.Fill(i);
+    h1NoFlowBins.Fill(i);
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
@@ -344,7 +339,7 @@ TEST(IntVariableBin1D, FillTupleDiscard) {
   }
   bins.push_back(Bins);
 
-  EPHist::VariableBinAxis axis(bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axis(bins, /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill(std::make_tuple(-100));
@@ -368,18 +363,17 @@ TEST(IntVariableBin1D, FillTupleOnlyInner) {
 
   EPHist::VariableBinAxis axis(bins);
   EPHist::EPHist<int> h1(axis);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill(std::make_tuple(i));
-    h1NoUnderflowOverflow.Fill(std::make_tuple(i));
+    h1NoFlowBins.Fill(std::make_tuple(i));
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);
@@ -415,7 +409,7 @@ TEST(IntVariableBin1D, TemplatedFillDiscard) {
   }
   bins.push_back(Bins);
 
-  EPHist::VariableBinAxis axis(bins, /*enableUnderflowOverflowBins=*/false);
+  EPHist::VariableBinAxis axis(bins, /*enableFlowBins=*/false);
   EPHist::EPHist<int> h1(axis);
 
   h1.Fill<EPHist::VariableBinAxis>(-100);
@@ -439,18 +433,17 @@ TEST(IntVariableBin1D, TemplatedFillOnlyInner) {
 
   EPHist::VariableBinAxis axis(bins);
   EPHist::EPHist<int> h1(axis);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (std::size_t i = 0; i < Bins; i++) {
     h1.Fill<EPHist::VariableBinAxis>(i);
-    h1NoUnderflowOverflow.Fill<EPHist::VariableBinAxis>(i);
+    h1NoFlowBins.Fill<EPHist::VariableBinAxis>(i);
   }
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1.GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow.GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins.GetBinContent(i), 1);
   }
   EXPECT_EQ(h1.GetBinContent(Bins), 0);
   EXPECT_EQ(h1.GetBinContent(Bins + 1), 0);

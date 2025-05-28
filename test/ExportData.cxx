@@ -13,13 +13,12 @@
 TEST(ExportTextData, IntRegular1D) {
   // Attempt to reproduce the example given in the PGFPlots manual:
   EPHist::EPHist<int> h1(3, 1, 10);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      3, 1, 10, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(3, 1, 10, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (double x : {1, 2, 1, 5, 4, 10, 7, 10, 9, 8, 9, 9}) {
     h1.Fill(x);
-    h1NoUnderflowOverflow.Fill(x);
+    h1NoFlowBins.Fill(x);
   }
 
   const char *Expected = R"(1 3
@@ -33,7 +32,7 @@ TEST(ExportTextData, IntRegular1D) {
   EXPECT_EQ(ss.str(), Expected);
 
   ss.str("");
-  EPHist::Util::ExportTextData(h1NoUnderflowOverflow, ss);
+  EPHist::Util::ExportTextData(h1NoFlowBins, ss);
   EXPECT_EQ(ss.str(), Expected);
 }
 
@@ -42,13 +41,12 @@ TEST(ExportTextData, IntVariable1D) {
   std::vector<double> bins = {1, 4, 7, 10 + 1e-9};
   EPHist::VariableBinAxis axis(bins);
   EPHist::EPHist<int> h1(axis);
-  EPHist::VariableBinAxis axisNoUnderflowOverflow(
-      bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::VariableBinAxis axisNoFlowBins(bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   for (double x : {1, 2, 1, 5, 4, 10, 7, 10, 9, 8, 9, 9}) {
     h1.Fill(x);
-    h1NoUnderflowOverflow.Fill(x);
+    h1NoFlowBins.Fill(x);
   }
 
   const char *Expected = R"(1 3
@@ -62,20 +60,19 @@ TEST(ExportTextData, IntVariable1D) {
   EXPECT_EQ(ss.str(), Expected);
 
   ss.str("");
-  EPHist::Util::ExportTextData(h1NoUnderflowOverflow, ss);
+  EPHist::Util::ExportTextData(h1NoFlowBins, ss);
   EXPECT_EQ(ss.str(), Expected);
 }
 
 TEST(ExportTextData, DoubleRegular1D) {
   // Attempt to reproduce the example given in the PGFPlots manual:
   EPHist::EPHist<double> h1(3, 1, 10);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      3, 1, 10, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<double> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(3, 1, 10, /*enableFlowBins=*/false);
+  EPHist::EPHist<double> h1NoFlowBins(axisNoFlowBins);
 
   for (double x : {1, 2, 1, 5, 4, 10, 7, 10, 9, 8, 9, 9}) {
     h1.Fill(x);
-    h1NoUnderflowOverflow.Fill(x);
+    h1NoFlowBins.Fill(x);
   }
 
   const char *Expected = R"(1 3
@@ -89,7 +86,7 @@ TEST(ExportTextData, DoubleRegular1D) {
   EXPECT_EQ(ss.str(), Expected);
 
   ss.str("");
-  EPHist::Util::ExportTextData(h1NoUnderflowOverflow, ss);
+  EPHist::Util::ExportTextData(h1NoFlowBins, ss);
   EXPECT_EQ(ss.str(), Expected);
 }
 

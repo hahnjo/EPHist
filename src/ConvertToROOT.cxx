@@ -20,21 +20,21 @@ std::unique_ptr<Hist> ConvertToTH1(const EPHist::EPHist<T> &h) {
   std::unique_ptr<Hist> out;
 
   const auto &axes = h.GetAxes();
-  bool enableUnderflowOverflowBins = true;
+  bool enableFlowBins = true;
   std::size_t numBins = -1;
   if (const auto *regular = std::get_if<EPHist::RegularAxis>(&axes[0])) {
-    enableUnderflowOverflowBins = regular->AreUnderflowOverflowBinsEnabled();
+    enableFlowBins = regular->AreFlowBinsEnabled();
     numBins = regular->GetNumBins();
     out.reset(new Hist("", "", numBins, regular->GetLow(), regular->GetHigh()));
   } else if (const auto *variable =
                  std::get_if<EPHist::VariableBinAxis>(&axes[0])) {
-    enableUnderflowOverflowBins = variable->AreUnderflowOverflowBinsEnabled();
+    enableFlowBins = variable->AreFlowBinsEnabled();
     numBins = variable->GetNumBins();
     const auto &binEdges = variable->GetBinEdges();
     out.reset(new Hist("", "", numBins, binEdges.data()));
   }
 
-  if (enableUnderflowOverflowBins) {
+  if (enableFlowBins) {
     // Set underflow and overflow bins.
     out->SetBinContent(0, h.GetBinContent(numBins));
     out->SetBinContent(numBins + 1, h.GetBinContent(numBins + 1));

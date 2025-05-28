@@ -21,25 +21,23 @@ private:
   double fLow;
   double fHigh;
   double fInvBinWidth;
-  bool fEnableUnderflowOverflowBins;
+  bool fEnableFlowBins;
 
 public:
   RegularAxis(std::size_t numBins, double low, double high,
-              bool enableUnderflowOverflowBins = true)
+              bool enableFlowBins = true)
       : fNumBins(numBins), fLow(low), fHigh(high),
-        fEnableUnderflowOverflowBins(enableUnderflowOverflowBins) {
+        fEnableFlowBins(enableFlowBins) {
     fInvBinWidth = numBins / (high - low);
   }
 
   std::size_t GetNumBins() const { return fNumBins; }
   std::size_t GetTotalNumBins() const {
-    return fEnableUnderflowOverflowBins ? fNumBins + 2 : fNumBins;
+    return fEnableFlowBins ? fNumBins + 2 : fNumBins;
   }
   double GetLow() const { return fLow; }
   double GetHigh() const { return fHigh; }
-  bool AreUnderflowOverflowBinsEnabled() const {
-    return fEnableUnderflowOverflowBins;
-  }
+  bool AreFlowBinsEnabled() const { return fEnableFlowBins; }
 
   double ComputeLowEdge(std::size_t bin) const {
     assert(0 <= bin && bin < fNumBins);
@@ -53,9 +51,9 @@ public:
 
   std::pair<std::size_t, bool> GetBin(BinIndex index) const {
     if (index.IsUnderflow()) {
-      return {fNumBins, fEnableUnderflowOverflowBins};
+      return {fNumBins, fEnableFlowBins};
     } else if (index.IsOverflow()) {
-      return {fNumBins + 1, fEnableUnderflowOverflowBins};
+      return {fNumBins + 1, fEnableFlowBins};
     } else if (index.IsInvalid()) {
       return {0, false};
     }
@@ -69,9 +67,9 @@ public:
     // Put NaNs into overflow bin.
     bool overflow = !(x < fHigh);
     if (underflow) {
-      return {fNumBins, fEnableUnderflowOverflowBins};
+      return {fNumBins, fEnableFlowBins};
     } else if (overflow) {
-      return {fNumBins + 1, fEnableUnderflowOverflowBins};
+      return {fNumBins + 1, fEnableFlowBins};
     }
 
     std::size_t bin = (x - fLow) * fInvBinWidth;
@@ -91,14 +89,13 @@ public:
     const auto low = ComputeLowEdge(begin.GetIndex());
     const auto high = ComputeHighEdge(end.GetIndex() - 1);
     // Always enable underflow and overflow bins.
-    const auto enableUnderflowOverflowBins = true;
-    return RegularAxis(numBins, low, high, enableUnderflowOverflowBins);
+    const auto enableFlowBins = true;
+    return RegularAxis(numBins, low, high, enableFlowBins);
   }
 
   friend bool operator==(const RegularAxis &lhs, const RegularAxis &rhs) {
     return lhs.fNumBins == rhs.fNumBins && lhs.fLow == rhs.fLow &&
-           lhs.fHigh == rhs.fHigh &&
-           lhs.fEnableUnderflowOverflowBins == rhs.fEnableUnderflowOverflowBins;
+           lhs.fHigh == rhs.fHigh && lhs.fEnableFlowBins == rhs.fEnableFlowBins;
   }
 };
 

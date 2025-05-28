@@ -12,13 +12,12 @@
 TEST(ConvertToTH1I, IntRegular1D) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> h1(Bins, 0, Bins);
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::EPHist<int> h1NoUnderflowOverflow(axisNoUnderflowOverflow);
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::EPHist<int> h1NoFlowBins(axisNoFlowBins);
 
   auto fill = [&](double x) {
     h1.Fill(x);
-    h1NoUnderflowOverflow.Fill(x);
+    h1NoFlowBins.Fill(x);
   };
 
   fill(-100);
@@ -42,7 +41,7 @@ TEST(ConvertToTH1I, IntRegular1D) {
     EXPECT_EQ(th1i->GetBinContent(i), 1);
   }
 
-  th1i = EPHist::Util::ConvertToTH1I(h1NoUnderflowOverflow);
+  th1i = EPHist::Util::ConvertToTH1I(h1NoFlowBins);
   ASSERT_EQ(th1i->GetNbinsX(), Bins);
   ASSERT_EQ(th1i->GetNbinsY(), 1);
   ASSERT_EQ(th1i->GetNbinsZ(), 1);

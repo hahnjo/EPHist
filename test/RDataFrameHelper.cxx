@@ -15,21 +15,20 @@ TEST(EPHistFillHelper, IntRegular1D) {
   EPHist::Util::EPHistFillHelper<int> helper(df.GetNSlots(), Bins, 0, Bins);
   auto h1 = df.Book<ULong64_t>(std::move(helper), {"rdfentry_"});
 
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::Util::EPHistFillAddHelper<int> helperNoUnderflowOverflow(
-      df.GetNSlots(), axisNoUnderflowOverflow);
-  auto h1NoUnderflowOverflow =
-      df.Book<ULong64_t>(std::move(helperNoUnderflowOverflow), {"rdfentry_"});
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::Util::EPHistFillAddHelper<int> helperNoFlowBins(df.GetNSlots(),
+                                                          axisNoFlowBins);
+  auto h1NoFlowBins =
+      df.Book<ULong64_t>(std::move(helperNoFlowBins), {"rdfentry_"});
 
   ASSERT_EQ(h1->GetTotalNumBins(), Bins + 2);
   EXPECT_EQ(h1->GetNumDimensions(), 1);
-  ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
-  EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
+  ASSERT_EQ(h1NoFlowBins->GetTotalNumBins(), Bins);
+  EXPECT_EQ(h1NoFlowBins->GetNumDimensions(), 1);
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1->GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins->GetBinContent(i), 1);
   }
   EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
@@ -77,21 +76,20 @@ TEST(EPHistFillAddHelper, IntRegular1D) {
   EPHist::Util::EPHistFillAddHelper<int> helper(df.GetNSlots(), Bins, 0, Bins);
   auto h1 = df.Book<ULong64_t>(std::move(helper), {"rdfentry_"});
 
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::Util::EPHistFillAddHelper<int> helperNoUnderflowOverflow(
-      df.GetNSlots(), axisNoUnderflowOverflow);
-  auto h1NoUnderflowOverflow =
-      df.Book<ULong64_t>(std::move(helperNoUnderflowOverflow), {"rdfentry_"});
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::Util::EPHistFillAddHelper<int> helperNoFlowBins(df.GetNSlots(),
+                                                          axisNoFlowBins);
+  auto h1NoFlowBins =
+      df.Book<ULong64_t>(std::move(helperNoFlowBins), {"rdfentry_"});
 
   ASSERT_EQ(h1->GetTotalNumBins(), Bins + 2);
   EXPECT_EQ(h1->GetNumDimensions(), 1);
-  ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
-  EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
+  ASSERT_EQ(h1NoFlowBins->GetTotalNumBins(), Bins);
+  EXPECT_EQ(h1NoFlowBins->GetNumDimensions(), 1);
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1->GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins->GetBinContent(i), 1);
   }
   EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
@@ -139,21 +137,19 @@ TEST(EPHistFillAtomicHelper, IntRegular1D) {
   EPHist::Util::EPHistFillAtomicHelper<int> helper(Bins, 0, Bins);
   auto h1 = df.Book<ULong64_t>(std::move(helper), {"rdfentry_"});
 
-  EPHist::RegularAxis axisNoUnderflowOverflow(
-      Bins, 0, Bins, /*enableUnderflowOverflowBins=*/false);
-  EPHist::Util::EPHistFillAtomicHelper<int> helperNoUnderflowOverflow(
-      axisNoUnderflowOverflow);
-  auto h1NoUnderflowOverflow =
-      df.Book<ULong64_t>(std::move(helperNoUnderflowOverflow), {"rdfentry_"});
+  EPHist::RegularAxis axisNoFlowBins(Bins, 0, Bins, /*enableFlowBins=*/false);
+  EPHist::Util::EPHistFillAtomicHelper<int> helperNoFlowBins(axisNoFlowBins);
+  auto h1NoFlowBins =
+      df.Book<ULong64_t>(std::move(helperNoFlowBins), {"rdfentry_"});
 
   ASSERT_EQ(h1->GetTotalNumBins(), Bins + 2);
   EXPECT_EQ(h1->GetNumDimensions(), 1);
-  ASSERT_EQ(h1NoUnderflowOverflow->GetTotalNumBins(), Bins);
-  EXPECT_EQ(h1NoUnderflowOverflow->GetNumDimensions(), 1);
+  ASSERT_EQ(h1NoFlowBins->GetTotalNumBins(), Bins);
+  EXPECT_EQ(h1NoFlowBins->GetNumDimensions(), 1);
 
   for (std::size_t i = 0; i < Bins; i++) {
     EXPECT_EQ(h1->GetBinContent(i), 1);
-    EXPECT_EQ(h1NoUnderflowOverflow->GetBinContent(i), 1);
+    EXPECT_EQ(h1NoFlowBins->GetBinContent(i), 1);
   }
   EXPECT_EQ(h1->GetBinContent(Bins), 0);
   EXPECT_EQ(h1->GetBinContent(Bins + 1), 0);
