@@ -43,14 +43,19 @@ TEST(Axes, ComputeBin) {
   static constexpr std::size_t BinsX = 20;
   EPHist::RegularAxis axisX(BinsX, 0, BinsX);
   static constexpr std::size_t BinsY = 30;
-  EPHist::RegularAxis axisY(BinsY, 0, BinsY);
+  std::vector<double> binsY;
+  for (std::size_t i = 0; i < BinsY; i++) {
+    binsY.push_back(i);
+  }
+  binsY.push_back(BinsY);
+  EPHist::VariableBinAxis axisY(binsY);
   EPHist::Detail::Axes axes({axisX, axisY});
 
   auto axisBin = axes.ComputeBin(std::make_tuple(1, 2));
   EXPECT_EQ(axisBin.first, (BinsY + 2) + 2);
   EXPECT_TRUE(axisBin.second);
 
-  axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::RegularAxis>(2, 3);
+  axisBin = axes.ComputeBin<EPHist::RegularAxis, EPHist::VariableBinAxis>(2, 3);
   EXPECT_EQ(axisBin.first, 2 * (BinsY + 2) + 3);
   EXPECT_TRUE(axisBin.second);
 
