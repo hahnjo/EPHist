@@ -21,9 +21,9 @@ private:
   bool fEnableUnderflowOverflowBins;
 
 public:
-  explicit VariableBinAxis(const std::vector<double> &binEdges,
+  explicit VariableBinAxis(std::vector<double> binEdges,
                            bool enableUnderflowOverflowBins = true)
-      : fBinEdges(binEdges),
+      : fBinEdges(std::move(binEdges)),
         fEnableUnderflowOverflowBins(enableUnderflowOverflowBins) {}
 
   std::size_t GetNumBins() const { return fBinEdges.size() - 1; }
@@ -83,7 +83,7 @@ public:
                          fBinEdges.begin() + end.GetIndex() + 1);
     // Always enable underflow and overflow bins.
     const auto enableUnderflowOverflowBins = true;
-    return VariableBinAxis(binEdges, enableUnderflowOverflowBins);
+    return VariableBinAxis(std::move(binEdges), enableUnderflowOverflowBins);
   }
 
   friend bool operator==(const VariableBinAxis &lhs,

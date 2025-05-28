@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace EPHist {
@@ -34,7 +35,7 @@ private:
   Detail::Axes fAxes;
 
 public:
-  explicit EPHist(const std::vector<AxisVariant> &axes) : fAxes(axes) {
+  explicit EPHist(std::vector<AxisVariant> axes) : fAxes(std::move(axes)) {
     fData.resize(fAxes.ComputeTotalNumBins());
   }
 
@@ -340,7 +341,7 @@ public:
     };
 
     // Create the sliced histogram and copy data.
-    EPHist<T> slice(slicedAxes);
+    EPHist<T> slice(std::move(slicedAxes));
     std::array<BinIndexRange::Iterator, N> origIndexIterator;
     std::array<BinIndex, N> origIndexes;
     std::array<BinIndex, N> sliceIndexes;

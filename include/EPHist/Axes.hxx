@@ -45,7 +45,7 @@ class Axes final {
   std::vector<AxisVariant> fAxes;
 
 public:
-  explicit Axes(const std::vector<AxisVariant> &axes) : fAxes(axes) {}
+  explicit Axes(std::vector<AxisVariant> axes) : fAxes(std::move(axes)) {}
 
   std::size_t GetNumDimensions() const { return fAxes.size(); }
   const std::vector<AxisVariant> &GetVector() const { return fAxes; }

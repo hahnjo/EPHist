@@ -7,6 +7,7 @@
 #include "TypeTraits.hxx"
 #include "Weight.hxx"
 
+#include <utility>
 #include <vector>
 
 namespace EPHist {
@@ -80,7 +81,7 @@ private:
   Detail::Axes fAxes;
 
 public:
-  explicit Profile(const std::vector<AxisVariant> &axes) : fAxes(axes) {
+  explicit Profile(std::vector<AxisVariant> axes) : fAxes(std::move(axes)) {
     fData.resize(fAxes.ComputeTotalNumBins());
   }
 
