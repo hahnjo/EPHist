@@ -7,6 +7,76 @@
 
 #include <gtest/gtest.h>
 
+TEST(Slicing, MixedTypes) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  std::vector<std::string> categories = {"a", "b", "c"};
+  EPHist::CategoricalAxis categoricalAxis(categories);
+
+  EPHist::EPHist<int> h({regularAxis, variableBinAxis, categoricalAxis});
+  const auto fullBins = EPHist::BinIndexRange::Full(Bins);
+  const auto fullCategorical =
+      EPHist::BinIndexRange::FullCategorical(categories.size());
+  const auto slice = h.Slice(fullBins, fullBins, fullCategorical);
+  const auto &axes = slice.GetAxes();
+  ASSERT_EQ(axes.size(), 3);
+  EXPECT_EQ(axes[0].index(), 0);
+  EXPECT_EQ(axes[1].index(), 1);
+  EXPECT_EQ(axes[2].index(), 2);
+  const auto *regular = std::get_if<EPHist::RegularAxis>(&axes[0]);
+  ASSERT_TRUE(regular != nullptr);
+  EXPECT_TRUE(regular->AreFlowBinsEnabled());
+  const auto *variable = std::get_if<EPHist::VariableBinAxis>(&axes[1]);
+  ASSERT_TRUE(variable != nullptr);
+  EXPECT_TRUE(variable->AreFlowBinsEnabled());
+  const auto *categorical = std::get_if<EPHist::CategoricalAxis>(&axes[2]);
+  ASSERT_TRUE(categorical != nullptr);
+  EXPECT_TRUE(categorical->IsOverflowBinEnabled());
+}
+
+TEST(Slicing, NoFlowBins) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins, /*enableFlowBins=*/false);
+  ASSERT_FALSE(regularAxis.AreFlowBinsEnabled());
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins, /*enableFlowBins=*/false);
+  ASSERT_FALSE(variableBinAxis.AreFlowBinsEnabled());
+  std::vector<std::string> categories = {"a", "b", "c"};
+  EPHist::CategoricalAxis categoricalAxis(categories,
+                                          /*enableOverflowBin=*/false);
+  ASSERT_FALSE(categoricalAxis.IsOverflowBinEnabled());
+
+  EPHist::EPHist<int> h({regularAxis, variableBinAxis, categoricalAxis});
+  const auto fullBins = EPHist::BinIndexRange::Full(Bins);
+  const auto fullCategorical =
+      EPHist::BinIndexRange::FullCategorical(categories.size());
+  const auto slice = h.Slice(fullBins, fullBins, fullCategorical);
+  const auto &axes = slice.GetAxes();
+  ASSERT_EQ(axes.size(), 3);
+  EXPECT_EQ(axes[0].index(), 0);
+  EXPECT_EQ(axes[1].index(), 1);
+  EXPECT_EQ(axes[2].index(), 2);
+  const auto *regular = std::get_if<EPHist::RegularAxis>(&axes[0]);
+  ASSERT_TRUE(regular != nullptr);
+  EXPECT_TRUE(regular->AreFlowBinsEnabled());
+  const auto *variable = std::get_if<EPHist::VariableBinAxis>(&axes[1]);
+  ASSERT_TRUE(variable != nullptr);
+  EXPECT_TRUE(variable->AreFlowBinsEnabled());
+  const auto *categorical = std::get_if<EPHist::CategoricalAxis>(&axes[2]);
+  ASSERT_TRUE(categorical != nullptr);
+  EXPECT_TRUE(categorical->IsOverflowBinEnabled());
+}
+
 TEST(Slicing, SliceInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

@@ -84,7 +84,7 @@ public:
   Iterator begin() const { return Iterator(fBegin, fNumBins); }
   Iterator end() const { return Iterator(fEnd, fNumBins); }
 
-  bool IsFull() const { return fBegin.IsUnderflow() && fEnd.IsInvalid(); }
+  bool IsFull() const { return fEnd.IsInvalid(); }
   BinIndexRange GetNormalRange(std::size_t numBins = 0) const {
     if (IsFull()) {
       // If this is the full range, return a new range for all normal bins.
@@ -110,6 +110,14 @@ public:
   static BinIndexRange Full(std::size_t numBins) {
     BinIndexRange full;
     full.fBegin = BinIndex::Underflow();
+    full.fEnd = BinIndex();
+    full.fNumBins = numBins;
+    return full;
+  }
+
+  static BinIndexRange FullCategorical(std::size_t numBins) {
+    BinIndexRange full;
+    full.fBegin = 0;
     full.fEnd = BinIndex();
     full.fNumBins = numBins;
     return full;

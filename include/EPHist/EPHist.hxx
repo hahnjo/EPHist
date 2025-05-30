@@ -319,6 +319,17 @@ public:
         normalRanges[i] = ranges[i].GetNormalRange(numBins);
         break;
       }
+      case Internal::AxisVariantIndex<CategoricalAxis>::value: {
+        const auto *categorical = std::get_if<CategoricalAxis>(&axis);
+        const std::size_t numBins = categorical->GetNumBins();
+        if (categorical->IsOverflowBinEnabled()) {
+          fullRanges[i] = BinIndexRange::FullCategorical(numBins);
+        } else {
+          fullRanges[i] = BinIndexRange(0, numBins);
+        }
+        normalRanges[i] = ranges[i].GetNormalRange(numBins);
+        break;
+      }
       }
     }
 
