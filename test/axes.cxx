@@ -93,6 +93,45 @@ TEST(Axes, ComputeBinInvalidNumberOfArguments) {
   EXPECT_NO_THROW(axes2.ComputeBin(std::make_tuple(1, 2)));
   EXPECT_THROW(axes2.ComputeBin(std::make_tuple(1, 2, 3)),
                std::invalid_argument);
+
+  std::array<EPHist::BinIndex, 1> args1 = {1};
+  std::array<EPHist::BinIndex, 2> args2 = {1, 2};
+  std::array<EPHist::BinIndex, 3> args3 = {1, 2, 3};
+
+  EXPECT_NO_THROW(axes1.ComputeBin(args1));
+  EXPECT_THROW(axes1.ComputeBin(args2), std::invalid_argument);
+
+  EXPECT_THROW(axes2.ComputeBin(args1), std::invalid_argument);
+  EXPECT_NO_THROW(axes2.ComputeBin(args2));
+  EXPECT_THROW(axes2.ComputeBin(args3), std::invalid_argument);
+}
+
+TEST(Axes, ComputeBinInvalidArgumentType) {
+  static constexpr std::size_t Bins = 20;
+
+  {
+    EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+    EPHist::Detail::Axes axes({regularAxis});
+    EXPECT_THROW(axes.ComputeBin(std::make_tuple("test")),
+                 std::invalid_argument);
+  }
+  {
+    std::vector<double> bins;
+    for (std::size_t i = 0; i < Bins; i++) {
+      bins.push_back(i);
+    }
+    bins.push_back(Bins);
+    EPHist::VariableBinAxis variableBinAxis(bins);
+    EPHist::Detail::Axes axes({variableBinAxis});
+    EXPECT_THROW(axes.ComputeBin(std::make_tuple("test")),
+                 std::invalid_argument);
+  }
+  {
+    std::vector<std::string> categories = {"a", "b", "c"};
+    EPHist::CategoricalAxis categoricalAxis(categories);
+    EPHist::Detail::Axes axes({categoricalAxis});
+    EXPECT_THROW(axes.ComputeBin(std::make_tuple(1)), std::invalid_argument);
+  }
 }
 
 TEST(Axes, TemplatedComputeBinInvalidNumberOfArguments) {

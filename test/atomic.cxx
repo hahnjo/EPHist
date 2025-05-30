@@ -5,6 +5,40 @@
 
 #include <gtest/gtest.h>
 
+TEST(Atomic, AddAtomicDifferentDimensions) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_THROW(h1.AddAtomic(h2), std::invalid_argument);
+}
+
+TEST(Atomic, AddAtomicDifferentAxisTypes) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis regularAxis(Bins, 0, Bins);
+  EPHist::EPHist<int> hA(regularAxis);
+  std::vector<double> bins;
+  for (std::size_t i = 0; i < Bins; i++) {
+    bins.push_back(i);
+  }
+  bins.push_back(Bins);
+  EPHist::VariableBinAxis variableBinAxis(bins);
+  EPHist::EPHist<int> hB(variableBinAxis);
+
+  EXPECT_THROW(hA.AddAtomic(hB), std::invalid_argument);
+}
+
+TEST(Atomic, AddAtomicUnequalRegularAxis) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::EPHist<int> hA(Bins, 0, Bins);
+  EPHist::EPHist<int> hB(Bins / 2, 0, Bins);
+
+  EXPECT_THROW(hA.AddAtomic(hB), std::invalid_argument);
+}
+
 TEST(Atomic, FillAtomicInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

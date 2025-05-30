@@ -17,6 +17,49 @@ TEST(Profile, Constructor) {
   EPHist::Profile<false> withoutError({axis});
 }
 
+TEST(Profile, GetBinContentAtNotFound) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> withError({axis});
+
+  EXPECT_THROW(withError.GetBinContentAt(Bins), std::invalid_argument);
+}
+
+TEST(Profile, GetBinContentAtInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  ASSERT_EQ(p1.GetNumDimensions(), 1);
+  EPHist::Profile<true> p2({axis, axis});
+  ASSERT_EQ(p2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(p1.GetBinContentAt(1));
+  EXPECT_THROW(p1.GetBinContentAt(1, 2), std::invalid_argument);
+
+  EXPECT_THROW(p2.GetBinContentAt(1), std::invalid_argument);
+  EXPECT_NO_THROW(p2.GetBinContentAt(1, 2));
+  EXPECT_THROW(p2.GetBinContentAt(1, 2, 3), std::invalid_argument);
+}
+
+TEST(Profile, GetBinContentAtArrayInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  ASSERT_EQ(p1.GetNumDimensions(), 1);
+  EPHist::Profile<true> p2({axis, axis});
+  ASSERT_EQ(p2.GetNumDimensions(), 2);
+
+  std::array<EPHist::BinIndex, 1> a1 = {1};
+  std::array<EPHist::BinIndex, 2> a2 = {1, 2};
+  std::array<EPHist::BinIndex, 3> a3 = {1, 2, 3};
+  EXPECT_NO_THROW(p1.GetBinContentAt(a1));
+  EXPECT_THROW(p1.GetBinContentAt(a2), std::invalid_argument);
+
+  EXPECT_THROW(p2.GetBinContentAt(a1), std::invalid_argument);
+  EXPECT_NO_THROW(p2.GetBinContentAt(a2));
+  EXPECT_THROW(p2.GetBinContentAt(a3), std::invalid_argument);
+}
+
 TEST(Profile, FillInvalidNumberOfArguments) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);
