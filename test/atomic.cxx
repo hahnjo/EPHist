@@ -5,6 +5,110 @@
 
 #include <gtest/gtest.h>
 
+TEST(Atomic, FillAtomicInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(h1.FillAtomic(1));
+  EXPECT_THROW(h1.FillAtomic(1, 2), std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic(1), std::invalid_argument);
+  EXPECT_NO_THROW(h2.FillAtomic(1, 2));
+  EXPECT_THROW(h2.FillAtomic(1, 2, 3), std::invalid_argument);
+}
+
+TEST(Atomic, FillAtomicTupleInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(h1.FillAtomic(std::make_tuple(1)));
+  EXPECT_THROW(h1.FillAtomic(std::make_tuple(1, 2)), std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic(std::make_tuple(1)), std::invalid_argument);
+  EXPECT_NO_THROW(h2.FillAtomic(std::make_tuple(1, 2)));
+  EXPECT_THROW(h2.FillAtomic(std::make_tuple(1, 2, 3)), std::invalid_argument);
+}
+
+TEST(Atomic, TemplatedFillAtomicInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(h1.FillAtomic<EPHist::RegularAxis>(1));
+  EXPECT_THROW((h1.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)),
+               std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic<EPHist::RegularAxis>(1), std::invalid_argument);
+  EXPECT_NO_THROW(
+      (h2.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)));
+  EXPECT_THROW((h2.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis,
+                              EPHist::RegularAxis>(1, 2, 3)),
+               std::invalid_argument);
+}
+
+TEST(Atomic, FillAtomicWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.FillAtomic(1, EPHist::Weight(1)));
+  EXPECT_THROW(h1.FillAtomic(1, 2, EPHist::Weight(1)), std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic(1, EPHist::Weight(1)), std::invalid_argument);
+  EXPECT_NO_THROW(h2.FillAtomic(1, 2, EPHist::Weight(1)));
+  EXPECT_THROW(h2.FillAtomic(1, 2, 3, EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
+TEST(Atomic, FillAtomicTupleWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.FillAtomic(std::make_tuple(1), EPHist::Weight(1)));
+  EXPECT_THROW(h1.FillAtomic(std::make_tuple(1, 2), EPHist::Weight(1)),
+               std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic(std::make_tuple(1), EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(h2.FillAtomic(std::make_tuple(1, 2), EPHist::Weight(1)));
+  EXPECT_THROW(h2.FillAtomic(std::make_tuple(1, 2, 3), EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
+TEST(Atomic, TemplatedFillAtomicWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<double> h1(axis);
+  EPHist::EPHist<double> h2({axis, axis});
+
+  EXPECT_NO_THROW(h1.FillAtomic<EPHist::RegularAxis>(1, EPHist::Weight(1)));
+  EXPECT_THROW((h1.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis>(
+                   1, 2, EPHist::Weight(1))),
+               std::invalid_argument);
+
+  EXPECT_THROW(h2.FillAtomic<EPHist::RegularAxis>(1, EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW((h2.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis>(
+      1, 2, EPHist::Weight(1))));
+  EXPECT_THROW((h2.FillAtomic<EPHist::RegularAxis, EPHist::RegularAxis,
+                              EPHist::RegularAxis>(1, 2, 3, EPHist::Weight(1))),
+               std::invalid_argument);
+}
+
 TEST(IntRegular1D, AddAtomic) {
   static constexpr std::size_t Bins = 20;
   EPHist::EPHist<int> hA(Bins, 0, Bins);

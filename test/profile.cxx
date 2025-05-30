@@ -17,6 +17,107 @@ TEST(Profile, Constructor) {
   EPHist::Profile<false> withoutError({axis});
 }
 
+TEST(Profile, FillInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  ASSERT_EQ(p1.GetNumDimensions(), 1);
+  EPHist::Profile<true> p2({axis, axis});
+  ASSERT_EQ(p2.GetNumDimensions(), 2);
+
+  EXPECT_THROW(p1.Fill(1), std::invalid_argument);
+  EXPECT_NO_THROW(p1.Fill(1, 2));
+  EXPECT_THROW(p1.Fill(1, 2, 3), std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(1, 2), std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(1, 2, 3));
+  EXPECT_THROW(p2.Fill(1, 2, 3, 4), std::invalid_argument);
+}
+
+TEST(Profile, FillTupleInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  ASSERT_EQ(p1.GetNumDimensions(), 1);
+  EPHist::Profile<true> p2({axis, axis});
+  ASSERT_EQ(p2.GetNumDimensions(), 2);
+
+  EXPECT_THROW(p1.Fill(std::make_tuple(1)), std::invalid_argument);
+  EXPECT_NO_THROW(p1.Fill(std::make_tuple(1, 2)));
+  EXPECT_THROW(p1.Fill(std::make_tuple(1, 2, 3)), std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2)), std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(std::make_tuple(1, 2, 3)));
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2, 3, 4)), std::invalid_argument);
+}
+
+TEST(Profile, FillTupleValueInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  ASSERT_EQ(p1.GetNumDimensions(), 1);
+  EPHist::Profile<true> p2({axis, axis});
+  ASSERT_EQ(p2.GetNumDimensions(), 2);
+
+  EXPECT_NO_THROW(p1.Fill(std::make_tuple(1), 2));
+  EXPECT_THROW(p1.Fill(std::make_tuple(1, 2), 3), std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(std::make_tuple(1), 2), std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(std::make_tuple(1, 2), 3));
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2, 3), 4), std::invalid_argument);
+}
+
+TEST(Profile, FillWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  EPHist::Profile<true> p2({axis, axis});
+
+  EXPECT_THROW(p1.Fill(1, EPHist::Weight(1)), std::invalid_argument);
+  EXPECT_NO_THROW(p1.Fill(1, 2, EPHist::Weight(1)));
+  EXPECT_THROW(p1.Fill(1, 2, 3, EPHist::Weight(1)), std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(1, 2, EPHist::Weight(1)), std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(1, 2, 3, EPHist::Weight(1)));
+  EXPECT_THROW(p2.Fill(1, 2, 3, 4, EPHist::Weight(1)), std::invalid_argument);
+}
+
+TEST(Profile, FillTupleWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  EPHist::Profile<true> p2({axis, axis});
+
+  EXPECT_THROW(p1.Fill(std::make_tuple(1), EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(p1.Fill(std::make_tuple(1, 2), EPHist::Weight(1)));
+  EXPECT_THROW(p1.Fill(std::make_tuple(1, 2, 3), EPHist::Weight(1)),
+               std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2), EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(std::make_tuple(1, 2, 3), EPHist::Weight(1)));
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2, 3, 4), EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
+TEST(Profile, FillTupleValueWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::Profile<true> p1({axis});
+  EPHist::Profile<true> p2({axis, axis});
+
+  EXPECT_NO_THROW(p1.Fill(std::make_tuple(1), 2, EPHist::Weight(1)));
+  EXPECT_THROW(p1.Fill(std::make_tuple(1, 2), 3, EPHist::Weight(1)),
+               std::invalid_argument);
+
+  EXPECT_THROW(p2.Fill(std::make_tuple(1), 2, EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(p2.Fill(std::make_tuple(1, 2), 3, EPHist::Weight(1)));
+  EXPECT_THROW(p2.Fill(std::make_tuple(1, 2, 3), 4, EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
 TEST(ProfileWithError1D, Fill) {
   static constexpr std::size_t Bins = 20;
   EPHist::RegularAxis axis(Bins, 0, Bins);

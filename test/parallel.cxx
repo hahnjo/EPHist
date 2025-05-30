@@ -18,6 +18,153 @@
 #include <string>
 #include <tuple>
 
+TEST(Parallel, FillInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<int>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<int>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill(1));
+  EXPECT_THROW(context1->Fill(1, 2), std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill(1), std::invalid_argument);
+  EXPECT_NO_THROW(context2->Fill(1, 2));
+  EXPECT_THROW(context2->Fill(1, 2, 3), std::invalid_argument);
+}
+
+TEST(Parallel, FillTupleInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<int>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<int>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill(std::make_tuple(1)));
+  EXPECT_THROW(context1->Fill(std::make_tuple(1, 2)), std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill(std::make_tuple(1)), std::invalid_argument);
+  EXPECT_NO_THROW(context2->Fill(std::make_tuple(1, 2)));
+  EXPECT_THROW(context2->Fill(std::make_tuple(1, 2, 3)), std::invalid_argument);
+}
+
+TEST(Parallel, TemplatedFillInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<int>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<int>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill<EPHist::RegularAxis>(1));
+  EXPECT_THROW((context1->Fill<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)),
+               std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill<EPHist::RegularAxis>(1), std::invalid_argument);
+  EXPECT_NO_THROW(
+      (context2->Fill<EPHist::RegularAxis, EPHist::RegularAxis>(1, 2)));
+  EXPECT_THROW((context2->Fill<EPHist::RegularAxis, EPHist::RegularAxis,
+                               EPHist::RegularAxis>(1, 2, 3)),
+               std::invalid_argument);
+}
+
+TEST(Parallel, FillWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<double>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill(1, EPHist::Weight(1)));
+  EXPECT_THROW(context1->Fill(1, 2, EPHist::Weight(1)), std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill(1, EPHist::Weight(1)), std::invalid_argument);
+  EXPECT_NO_THROW(context2->Fill(1, 2, EPHist::Weight(1)));
+  EXPECT_THROW(context2->Fill(1, 2, 3, EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
+TEST(Parallel, FillTupleWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<double>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill(std::make_tuple(1), EPHist::Weight(1)));
+  EXPECT_THROW(context1->Fill(std::make_tuple(1, 2), EPHist::Weight(1)),
+               std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill(std::make_tuple(1), EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW(context2->Fill(std::make_tuple(1, 2), EPHist::Weight(1)));
+  EXPECT_THROW(context2->Fill(std::make_tuple(1, 2, 3), EPHist::Weight(1)),
+               std::invalid_argument);
+}
+
+TEST(Parallel, TemplatedFillWeightInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  auto h1 = std::make_shared<EPHist::EPHist<double>>(axis);
+  ASSERT_EQ(h1->GetNumDimensions(), 1);
+  EPHist::ParallelHelper helper1(h1);
+  auto context1 = helper1.CreateFillContext();
+
+  std::vector<EPHist::AxisVariant> axes = {axis, axis};
+  auto h2 = std::make_shared<EPHist::EPHist<double>>(axes);
+  ASSERT_EQ(h2->GetNumDimensions(), 2);
+  EPHist::ParallelHelper helper2(h2);
+  auto context2 = helper2.CreateFillContext();
+
+  EXPECT_NO_THROW(context1->Fill<EPHist::RegularAxis>(1, EPHist::Weight(1)));
+  EXPECT_THROW((context1->Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
+                   1, 2, EPHist::Weight(1))),
+               std::invalid_argument);
+
+  EXPECT_THROW(context2->Fill<EPHist::RegularAxis>(1, EPHist::Weight(1)),
+               std::invalid_argument);
+  EXPECT_NO_THROW((context2->Fill<EPHist::RegularAxis, EPHist::RegularAxis>(
+      1, 2, EPHist::Weight(1))));
+  EXPECT_THROW(
+      (context2->Fill<EPHist::RegularAxis, EPHist::RegularAxis,
+                      EPHist::RegularAxis>(1, 2, 3, EPHist::Weight(1))),
+      std::invalid_argument);
+}
+
 static constexpr EPHist::ParallelFillStrategy kAllStrategies[] = {
     EPHist::ParallelFillStrategy::Automatic,
     EPHist::ParallelFillStrategy::Atomic,
