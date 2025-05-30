@@ -7,6 +7,45 @@
 
 #include <gtest/gtest.h>
 
+TEST(Slicing, SliceInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  const auto full = EPHist::BinIndexRange::Full(Bins);
+
+  EXPECT_NO_THROW(h1.Slice(full));
+  EXPECT_THROW(h1.Slice(full, full), std::invalid_argument);
+
+  EXPECT_THROW(h2.Slice(full), std::invalid_argument);
+  EXPECT_NO_THROW(h2.Slice(full, full));
+  EXPECT_THROW(h2.Slice(full, full, full), std::invalid_argument);
+}
+
+TEST(Slicing, SliceArrayInvalidNumberOfArguments) {
+  static constexpr std::size_t Bins = 20;
+  EPHist::RegularAxis axis(Bins, 0, Bins);
+  EPHist::EPHist<int> h1(axis);
+  ASSERT_EQ(h1.GetNumDimensions(), 1);
+  EPHist::EPHist<int> h2({axis, axis});
+  ASSERT_EQ(h2.GetNumDimensions(), 2);
+
+  const auto full = EPHist::BinIndexRange::Full(Bins);
+  std::array<EPHist::BinIndexRange, 1> full1 = {full};
+  std::array<EPHist::BinIndexRange, 2> full2 = {full, full};
+  std::array<EPHist::BinIndexRange, 3> full3 = {full, full, full};
+
+  EXPECT_NO_THROW(h1.Slice(full1));
+  EXPECT_THROW(h1.Slice(full2), std::invalid_argument);
+
+  EXPECT_THROW(h2.Slice(full1), std::invalid_argument);
+  EXPECT_NO_THROW(h2.Slice(full2));
+  EXPECT_THROW(h2.Slice(full3), std::invalid_argument);
+}
+
 TEST(Slicing, Slice1D) {
   // https://github.com/scikit-hep/uhi/blob/bd2de58dde1de75881a71b7445d538c27e1d0307/src/uhi/testing/indexing.py#L31-L32
   static constexpr std::size_t Bins = 10;
