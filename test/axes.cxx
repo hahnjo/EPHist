@@ -22,17 +22,19 @@ TEST(Axes, MixedTypes) {
   }
   bins.push_back(Bins);
   EPHist::VariableBinAxis variableBinAxis(bins);
+  std::vector<std::string> categories = {"a", "b", "c"};
+  EPHist::CategoricalAxis categoricalAxis(categories);
 
-  EPHist::Detail::Axes axes({regularAxis, variableBinAxis, regularAxis});
+  EPHist::Detail::Axes axes({regularAxis, variableBinAxis, categoricalAxis});
   EXPECT_EQ(axes.GetNumDimensions(), 3);
   const auto &v = axes.GetVector();
   ASSERT_EQ(v.size(), 3);
   EXPECT_EQ(v[0].index(), 0);
   EXPECT_EQ(v[1].index(), 1);
-  EXPECT_EQ(v[2].index(), 0);
+  EXPECT_EQ(v[2].index(), 2);
   ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&v[0]) != nullptr);
   ASSERT_TRUE(std::get_if<EPHist::VariableBinAxis>(&v[1]) != nullptr);
-  ASSERT_TRUE(std::get_if<EPHist::RegularAxis>(&v[2]) != nullptr);
+  ASSERT_TRUE(std::get_if<EPHist::CategoricalAxis>(&v[2]) != nullptr);
 
   std::vector<EPHist::AxisVariant> newAxes{variableBinAxis, regularAxis};
   axes = EPHist::Detail::Axes(newAxes);
