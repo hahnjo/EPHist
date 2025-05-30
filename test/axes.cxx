@@ -155,12 +155,15 @@ TEST(Axes, Slice) {
   }
   bins.push_back(Bins);
   const EPHist::VariableBinAxis variableBinAxis(bins);
+  std::vector<std::string> categories = {"a", "b", "c", "d"};
+  EPHist::CategoricalAxis categoricalAxis(categories);
 
-  const EPHist::Detail::Axes axes({regularAxis, variableBinAxis});
-  std::array<EPHist::BinIndexRange, 2> ranges{EPHist::BinIndexRange(2, 12),
-                                              EPHist::BinIndexRange(8, 15)};
+  const EPHist::Detail::Axes axes({regularAxis, variableBinAxis, categoricalAxis});
+  std::array<EPHist::BinIndexRange, 3> ranges{EPHist::BinIndexRange(2, 12),
+                                              EPHist::BinIndexRange(8, 15),
+                                              EPHist::BinIndexRange(1, 3)};
   const auto sliced = axes.Slice(ranges);
-  ASSERT_EQ(sliced.size(), 2);
+  ASSERT_EQ(sliced.size(), 3);
   {
     const auto *slicedAxis = std::get_if<EPHist::RegularAxis>(&sliced[0]);
     ASSERT_TRUE(slicedAxis != nullptr);
@@ -176,6 +179,14 @@ TEST(Axes, Slice) {
     ASSERT_EQ(slicedAxis->GetNumBins(), 7);
     EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(0), 8);
     EXPECT_FLOAT_EQ(slicedAxis->GetBinEdge(7), 15);
+  }
+  {
+    const auto *slicedAxis = std::get_if<EPHist::CategoricalAxis>(&sliced[2]);
+    ASSERT_TRUE(slicedAxis != nullptr);
+    EXPECT_TRUE(slicedAxis->IsOverflowBinEnabled());
+    ASSERT_EQ(slicedAxis->GetNumBins(), 2);
+    EXPECT_EQ(slicedAxis->GetCategory(0), "b");
+    EXPECT_EQ(slicedAxis->GetCategory(1), "c");
   }
 }
 

@@ -227,8 +227,14 @@ public:
         axes.push_back(variable->Slice(range));
         break;
       }
+      case Internal::AxisVariantIndex<CategoricalAxis>::value: {
+        const auto *categorical = std::get_if<CategoricalAxis>(&axis);
+        axes.push_back(categorical->Slice(range));
+        break;
+      }
       }
     }
+    assert(axes.size() == N);
     return axes;
   }
 
